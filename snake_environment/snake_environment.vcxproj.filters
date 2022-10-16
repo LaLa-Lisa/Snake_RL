@@ -18,9 +18,18 @@
     <ClCompile Include="Source.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="LGenetic.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="snake_env.hpp">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LGenetic.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LMatrix.hpp">
       <Filter>Resource Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -14,7 +14,7 @@ public:
 	void reset() {
 		gameOver = false;
 		tailN = 0;
-		sorce = 0;
+		score = 0;
 		TailX.resize(wight * heght, -1);
 		TailY.resize(wight * heght, -1);
 		x = wight / 2;
@@ -58,7 +58,7 @@ public:
 			std::cout << "#";
 		}
 		std::cout << std::endl;
-		std::cout << "Sorce:" << sorce << std::endl;
+		std::cout << "Sorce:" << score << std::endl;
 		std::cout << "FrutCoords:" << FrutX << " " << FrutY << "\n";
 	}
 	void step(const int _input_direction) {
@@ -136,11 +136,16 @@ public:
 		return gameOver;
 	}
 
+	double reward() {
+		return score;
+	}
+
 private:
 	const int wight, heght;
 	int x, y, FrutX, FrutY;
-	int sorce = 0;
+	int score = 0;
 	int tailN = 0;
+	int steps_number = 0;
 	std::vector<int> TailX, TailY;
 	bool gameOver;
 	enum mDirection { STOP = 0, UP, RIGHT, LEFT, DOWN };
@@ -171,7 +176,7 @@ private:
 	}
 	void Logic() {
 		if (x == FrutX && y == FrutY) {
-			sorce += 1;
+			score += 1;
 			while (true) {
 				FrutX = rand() % (heght - 2) + 1;
 				FrutY = rand() % (wight);
