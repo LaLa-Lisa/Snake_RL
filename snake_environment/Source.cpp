@@ -59,7 +59,7 @@ double fitness(std::vector<double>& x) {
 
 	while (!Env.is_done()) {
 		++steps;
-		if (steps > 20) break;
+		if (steps > 200) break;
 		if (show) {
 			Env.console_render();
 			Sleep(300);
