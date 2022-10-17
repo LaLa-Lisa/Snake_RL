@@ -68,7 +68,7 @@ public:
 	std::vector<double> observe() {
 		double sensor1 = (x - 1);
 		double sensor2 = (y);
-		double sensor3 = (heght - 2 - x);
+		double sensor3 = (heght - x - 2);
 		double sensor4 = (wight - y - 1);
 		double diag1 = 0;
 		double diag2 = 0;
@@ -110,7 +110,7 @@ public:
 		if (y == FrutY) (x > FrutX) ? sensor5 = x - FrutX + 1 : sensor7 = FrutX - x + 1;
 
 		for (int i = 0; i < tailN; ++i) {
-			if (x == TailX[i]) { (y > TailY[i]) ? sensor2 = min(sensor2, (y - TailY[i]) - 1) : sensor4 = min(sensor4, (TailY[i] - y) - 1); }
+			if (x == TailX[i]) (y > TailY[i]) ? sensor2 = min(sensor2, (y - TailY[i]) - 1) : sensor4 = min(sensor4, (TailY[i] - y) - 1); 
 			if (y == TailY[i]) (x > TailX[i]) ? sensor1 = min(sensor1, (x - TailX[i]) - 1) : sensor3 = min(sensor3, (TailX[i] - x) - 1);
 		}
 		std::vector<double> ans;
@@ -176,7 +176,7 @@ private:
 	}
 	void Logic() {
 		if (x == FrutX && y == FrutY) {
-			score += 1;
+			++score;
 			while (true) {
 				FrutX = rand() % (heght - 2) + 1;
 				FrutY = rand() % (wight);
@@ -185,7 +185,7 @@ private:
 					if (FrutX == TailX[k] && FrutY == TailY[k]) continue;
 				break;
 			}
-			tailN++;
+			++tailN;
 		}
 		int headX = x;
 		int headY = y;

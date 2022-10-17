@@ -56,6 +56,7 @@ public:
 private:
 	std::vector<std::vector<double>> pop;
 	std::vector<double> b_gene;
+	double b_result;
 
 	int current_iteration;
 	int max_iteration;

@@ -30,6 +30,7 @@ LGenetic::LGenetic(int popSize, int genSize,
 		chrom = numbers;
 	}
 	b_gene = pop[0];
+	b_result = fitness_function(b_gene);
 }
 
 void LGenetic::learn(int generationsNum) {
@@ -40,6 +41,7 @@ void LGenetic::learn(int generationsNum) {
 	{
 		current_iteration = t;
 		sort();
+		pop[0] = b_gene;
 		std::cout << t << " - " << abs(fitness_function(b_gene)) << " loss - " << loss(b_gene, file_validation) << "\n";
 
 		//crossover();
@@ -520,7 +522,9 @@ void LGenetic::sort() {
 	//th12.join();
 
 	qsort(F, pop.size());
-	b_gene = pop[0];
+	double f_0 = fitness_function(pop[0]);
+	if (f_0 < b_result)
+		b_gene = pop[0];
 }
 
 void LGenetic::fitness_proportionate_selection() {
