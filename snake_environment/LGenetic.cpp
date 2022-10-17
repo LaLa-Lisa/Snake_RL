@@ -41,6 +41,11 @@ void LGenetic::learn(int generationsNum) {
 		current_iteration = t;
 		sort();
 		std::cout << t << " - " << fitness_function(b_gene) << " | " << loss(b_gene, file_validation) << "\n";
+		if (t % 500) {
+			std::ofstream f("best_latest_.txt");
+			for (auto& i : pop[0])
+				f << i << ' ';
+		}
 
 		crossover();
 		//(rand() % 100 > 50) ? crossover() : this->TPINV();
