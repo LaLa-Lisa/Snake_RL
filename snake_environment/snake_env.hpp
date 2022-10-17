@@ -214,8 +214,8 @@ private:
 			y++;
 			break;
 		}
-		if (x == heght - 1) gameOver = true;
-		if (y == wight - 1) gameOver = true;
+		if (x == heght) gameOver = true;
+		if (y == wight) gameOver = true;
 		if (x < 0) gameOver = true;
 		if (y < 0) gameOver = true;
 		for (int k = 1; k < tailN; k++) {
