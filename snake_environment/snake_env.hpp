@@ -25,7 +25,7 @@ public:
 			if (FrutX == x && FrutY == y) continue;
 			break;
 		}
-		dir = STOP;
+		dir = UP;
 	}
 	void console_render() {
 		setcur(0, 0);
@@ -102,10 +102,10 @@ public:
 					i = 10000;
 					break;
 				}
-		double sensor5 = 0;
-		double sensor6 = 0;
-		double sensor7 = 0;
-		double sensor8 = 0;
+		double sensor5 = -1;
+		double sensor6 = -1;
+		double sensor7 = -1;
+		double sensor8 = -1;
 		if (x == FrutX) (y > FrutY) ? sensor6 = y - FrutY + 1 : sensor8 = FrutY - y + 1;
 		if (y == FrutY) (x > FrutX) ? sensor5 = x - FrutX + 1 : sensor7 = FrutX - x + 1;
 
@@ -136,6 +136,10 @@ public:
 		return gameOver;
 	}
 
+	int snake_len() {
+		return tailN;
+	}
+
 private:
 	const int wight, heght;
 	int x, y, FrutX, FrutY;
@@ -143,27 +147,31 @@ private:
 	int tailN = 0;
 	std::vector<int> TailX, TailY;
 	bool gameOver;
-	enum mDirection { STOP = 0, UP, RIGHT, LEFT, DOWN };
+	enum mDirection { UP, RIGHT, LEFT, DOWN };
 	mDirection dir;
 
-	void Input(const int input) {
-		switch (input)
+	void Input(const int way) {
+		switch (dir)
 		{
-		case 0:
-			if (dir != DOWN)
-				dir = UP;
+		case UP:
+			if (way == 0) dir = UP;
+			if (way == 1) dir = LEFT;
+			if (way == 2) dir = RIGHT;
 			break;
-		case 1:
-			if (dir != UP)
-				dir = DOWN;
+		case DOWN:
+			if (way == 0) dir = DOWN;
+			if (way == 1) dir = RIGHT;
+			if (way == 2) dir = LEFT;
 			break;
-		case 2:
-			if (dir != LEFT)
-				dir = RIGHT;
+		case LEFT:
+			if (way == 0) dir = LEFT;
+			if (way == 1) dir = DOWN;
+			if (way == 2) dir = UP;
 			break;
-		case 3:
-			if (dir != RIGHT)
-				dir = LEFT;
+		case RIGHT:
+			if (way == 0) dir = RIGHT;
+			if (way == 1) dir = UP;
+			if (way == 2) dir = DOWN;
 			break;
 		default:
 			break;
@@ -177,7 +185,8 @@ private:
 				FrutY = rand() % (wight);
 				if (FrutX == x && FrutY == y) continue;
 				for (int k = 0; k < tailN + 1; k++)
-					if (FrutX == TailX[k] && FrutY == TailY[k]) continue;
+					if (FrutX == TailX[k] && FrutY == TailY[k])
+						continue;
 				break;
 			}
 			tailN++;
@@ -192,8 +201,6 @@ private:
 		TailY[0] = headY;
 		switch (dir)
 		{
-		case STOP:
-			break;
 		case UP:
 			y--;
 			break;
