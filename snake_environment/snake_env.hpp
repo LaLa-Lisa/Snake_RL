@@ -91,8 +91,8 @@ public:
 
 		if (x == FrutX && y == FrutY) {
 			--tailN;
-			TailX.pop_back();
-			TailY.pop_back();
+			/*TailX.pop_back();
+			TailY.pop_back();*/
 		}
 		else {
 			TailX[tailN - 1] = tail_end_step.end()[-1].first;
