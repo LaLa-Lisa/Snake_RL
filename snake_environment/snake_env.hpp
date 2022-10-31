@@ -85,7 +85,7 @@ public:
 		
 
 		//hvostic
-		if (frut_step.end()[-1] == Head) {
+		if (score && frut_step.end()[-1] == Head) {
 			Frut = frut_step.end()[-1];
 			frut_step.pop_back();
 
