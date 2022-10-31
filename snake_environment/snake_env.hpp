@@ -348,7 +348,7 @@ private:
 		}
 	}
 	void move_snake_backward() {
-		if (score) {
+		if (score && tail_end_step.size()) {
 			for (int i = 0; i < Tail.size() - 1; ++i) {
 				Tail[i] = Tail[i + 1];
 			}
