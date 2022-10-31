@@ -4,6 +4,19 @@
 #include <Windows.h>
 #include <vector>
 
+struct Scoord {
+public:
+	int X, Y;
+	Scoord() : X(-1), Y(-1) {}
+	Scoord(int _x, int _y) : X(_x), Y(_y) {}
+	bool operator==(const Scoord& right) { return X == right.X && Y == right.Y;  }
+	Scoord& operator=(Scoord& right)
+	{
+		X = right.X; 
+		Y = right.Y;
+		return *this;
+	}
+};
 
 class snake_env {
 public:
@@ -15,18 +28,10 @@ public:
 		gameOver = false;
 		step_counter = 0;
 		steps_without_frut = 0;
-		tailN = 0;
 		score = 0;
-		TailX.resize(wight * heght, -1);
-		TailY.resize(wight * heght, -1);
-		x = wight / 2;
-		y = heght / 2;
-		while (true) {
-			FrutX = rand() % heght;
-			FrutY = rand() % wight;
-			if (FrutX == x && FrutY == y) continue;
-			break;
-		}
+		Head.X = wight / 2;
+		Head.Y = heght / 2;
+		spawn_frut();
 		dir = UP;
 	}
 	void console_render() {
@@ -38,18 +43,10 @@ public:
 		for (int i = 0; i < wight; ++i) {
 			std::cout << "#";
 			for (int j = 0; j < heght; ++j) {
-				if (j == x && i == y) std::cout << "O";
-				else if (j == FrutX && i == FrutY) std::cout << "F";
-				else {
-					bool by = true;
-					for (int k = 0; k < tailN; k++) {
-						if (j == TailX[k] && i == TailY[k]) {
-							std::cout << "o";
-							by = false;
-						}
-					}
-					if (by) std::cout << " ";
-				}
+				if (j == Head.X && i == Head.Y) std::cout << "O";
+				else if (j == Frut.X && i == Frut.Y) std::cout << "F";
+				else if (is_tail(Scoord(j, i))) std::cout << "o";
+				else std::cout << " ";
 			}
 			std::cout << "#" << std::endl;
 		}
@@ -57,126 +54,105 @@ public:
 			std::cout << "#";
 		}
 		std::cout << std::endl;
-		std::cout << "Sorce:" << score << std::endl;
-		std::cout << "FrutCoords:" << FrutX << " " << FrutY << std::endl;
+		std::cout << "Sorce:" << score << " and Tail length: " << snake_len() << std::endl;
+		std::cout << "FrutCoords:" << Frut.X << " " << Frut.Y << std::endl;
 		std::cout << "Direction: " << direction() << "       " << std::endl;
+		std::cout << "TailX: ";
+		for (auto& i : Tail) std::cout << i.X << " ";
+		std::cout << std::endl << "TailY: ";
+		for (auto& i : Tail) std::cout << i.Y << " ";
+		std::cout << std::endl;
+
 	}
 	void step(const int _input_direction) {
 		++step_counter;
-		tail_end_step.push_back(std::make_pair(TailX[tailN - 1], TailY[tailN - 1]));
-		score_step.push_back(score);
+		if(score) tail_end_step.push_back(Tail.end()[-1]);
 		direction_step.push_back(dir);
-		frut_step.push_back(std::make_pair(FrutX, FrutY));
 		Input(_input_direction);
 		Logic();
 	}
 	void backstep(const int _prev_direction) {
-		Input(_prev_direction);
+		if (gameOver) gameOver = false;
+		//Input(_prev_direction);
 		if (!step_counter) {
 			throw std::invalid_argument("no steps before");
 		}
 		/*if (dir != direction_step.end()[-1]) {
 			throw std::invalid_argument("wrong last action");
 		}*/
-
-		//hvostic
-		FrutX = frut_step.end()[-1].first;
-		FrutY = frut_step.end()[-1].second;
-
+		//dir = direction_step.end()[-1];
 		//fruktic
-		for (int i = 0; i < tailN; ++i) {
-			TailX[i] = TailX[i + 1];
-			TailY[i] = TailY[i + 1];
-		}
-
-		if (x == FrutX && y == FrutY) {
-			--tailN;
-			/*TailX.pop_back();
-			TailY.pop_back();*/
-		}
-		else {
-			TailX[tailN - 1] = tail_end_step.end()[-1].first;
-			TailY[tailN - 1] = tail_end_step.end()[-1].second;
-		}
 		
 
-		switch (dir)
-		{
-		case UP:
-			y++;
-			break;
-		case RIGHT:
-			x--;
-			break;
-		case LEFT:
-			x++;
-			break;
-		case DOWN:
-			y--;
-			break;
-		}
-		dir = direction_step.end()[-1];
+		//hvostic
+		if (frut_step.end()[-1] == Head) {
+			Frut = frut_step.end()[-1];
+			frut_step.pop_back();
 
-		score = score_step.end()[-1];
+			Tail.pop_back();
+			--score;
+
+			steps_without_frut = steps_per_frut.end()[-1];
+		}
+		else {
+			--steps_without_frut;
+		}
+		move_snake_backward();
+
+		
+		dir = direction_step.end()[-1];
 
 		--step_counter;
 		tail_end_step.pop_back();
-		score_step.pop_back();
 		direction_step.pop_back();
-		frut_step.pop_back();
-
 	}
+
 	std::vector<double> observe() {
-		double sensor1 = x;
-		double sensor2 = y;
-		double sensor3 = heght - x - 1;
-		double sensor4 = wight - y - 1;
+		double sensor1 = Head.X;
+		double sensor2 = Head.Y;
+		double sensor3 = heght - Head.X - 1;
+		double sensor4 = wight - Head.Y - 1;
 		double diag1 = -1;
 		double diag2 = -1;
 		double diag3 = -1;
 		double diag4 = -1;
 		for (int i = 0; i < min(sensor1, sensor2); ++i)
-			for (int k = 0; k < tailN; ++k)
-				if (x - i == TailX[k] && y - i == TailY[k]) {
-					diag1 = i;
-					i = min(sensor1, sensor2);
-					break;
-				}
+			if (is_tail(Scoord(Head.X - i, Head.Y - i))) {
+				diag1 = i;
+				break;
+			}
+			
 		for (int i = 0; i < min(sensor2, sensor3); ++i)
-			for (int k = 0; k < tailN; ++k)
-				if (x + i == TailX[k] && y - i == TailY[k]) {
-					diag2 = i;
-					i = min(sensor2, sensor3);
-					break;
-				}
+			if (is_tail(Scoord(Head.X + i, Head.Y - i))) {
+				diag2 = i;
+				break;
+			}
+	
 		for (int i = 0; i < min(sensor3, sensor4); ++i)
-			for (int k = 0; k < tailN; ++k)
-				if (x + i == TailX[k] && y + i == TailY[k]) {
-					diag3 = i;
-					i = min(sensor3, sensor4);
-					break;
-				}
+			if (is_tail(Scoord(Head.X + i, Head.Y + i))) {
+				diag3 = i;
+				break;
+			}
 		for (int i = 0; i < min(sensor4, sensor1); ++i)
-			for (int k = 0; k < tailN; ++k)
-				if (x - i == TailX[k] && y + i == TailY[k]) {
-					diag4 = i;
-					i = min(sensor4, sensor1);
-					break;
-				}
+			if (is_tail(Scoord(Head.X - i, Head.Y + i))) {
+				diag4 = i;
+				break;
+			}
+	
 		double sensor5 = -1;
 		double sensor6 = -1;
 		double sensor7 = -1;
 		double sensor8 = -1;
-		if (x == FrutX) (y > FrutY) ? sensor6 = y - FrutY - 1 : sensor8 = FrutY - y - 1;
-		if (y == FrutY) (x > FrutX) ? sensor5 = x - FrutX - 1 : sensor7 = FrutX - x - 1;
+		if (Head.X == Frut.X) (Head.Y > Frut.Y) ? sensor6 = Head.Y - Frut.Y - 1 : sensor8 = Frut.Y - Head.Y - 1;
+		if (Head.Y == Frut.Y) (Head.X > Frut.X) ? sensor5 = Head.X - Frut.X - 1 : sensor7 = Frut.X - Head.X - 1;
 
 		double sensor9 = -1;
 		double sensor10 = -1;
 		double sensor11 = -1;
 		double sensor12 = -1;
-		for (int i = 0; i < tailN; ++i) {
-			if (x == TailX[i]) (y > TailY[i]) ? sensor10 =  min(max(sensor10, sensor2), y - TailY[i] - 1) : sensor12 = min(max(sensor12, sensor4), TailY[i] - y - 1);
-			if (y == TailY[i]) (x > TailX[i]) ? sensor9 = min(max(sensor9, sensor1), x - TailX[i] - 1) : sensor11 = min(max(sensor11, sensor3), TailX[i] - x - 1);
+		for (int i = 0; i < Tail.size(); ++i) {
+			if (Head.X == Tail[i].X) (Head.Y > Tail[i].Y) ? sensor10 =  min(max(sensor10, sensor2), Head.Y - Tail[i].Y - 1) : sensor12 = min(max(sensor12, sensor4), Tail[i].Y - Head.Y - 1);
+			if (Head.Y == Tail[i].Y) (Head.X > Tail[i].X) ? sensor9 = min(max(sensor9, sensor1), Head.X - Tail[i].X - 1) : sensor11 = min(max(sensor11, sensor3), Tail[i].X - Head.X - 1);
 		}
 		std::vector<double> ans;
 		switch (dir)
@@ -203,13 +179,13 @@ public:
 	bool is_done() {
 		return gameOver;
 	}
-
 	int snake_len() {
-		return tailN;
+		return Tail.size();
 	}
 	double reward() {
 		return score;
 	}
+
 	std::string direction() {
 		switch (dir)
 		{
@@ -228,7 +204,6 @@ public:
 		}
 		return "STOP";
 	}
-
 	std::vector<int> direction_output() {
 		switch (dir)
 		{
@@ -250,27 +225,27 @@ public:
 
 private:
 	const int wight, heght;
-	int x, y, FrutX, FrutY;
+	Scoord Head;
+	Scoord Frut;
 	int score = 0;
-	int tailN = 0;
-	std::vector<int> TailX, TailY;
+	std::vector<Scoord> Tail;
 	bool gameOver;
 	enum mDirection { UP, RIGHT, LEFT, DOWN };
 	mDirection dir;
 
 	//backstep
 	int step_counter = 0;
-	std::vector<std::pair<int, int>> tail_end_step;
-	std::vector<std::pair<int, int>> frut_step;
-	std::vector<int> score_step;
+	std::vector<Scoord> tail_end_step;
+	std::vector<Scoord> frut_step;
 	std::vector<mDirection> direction_step;
 
 	//anti circle
 	bool is_circle_restriced = true;
 	const int max_availible_steps;
 	int steps_without_frut = 0;
+	std::vector<int> steps_per_frut;
 
-	void Input(const int way) {
+	mDirection Input(const int way) {
 		switch (dir)
 		{
 		case UP:
@@ -296,64 +271,104 @@ private:
 		default:
 			break;
 		}
+		return dir;
 	}
 	void Logic() {
-		if (x == FrutX && y == FrutY) {
+		if (Head == Frut) {
 			++score;
-			while (true) {
-				FrutX = rand() % heght;
-				FrutY = rand() % wight;
-				if (FrutX == x && FrutY == y) continue;
-				for (int k = 0; k < tailN + 1; k++)
-					if (FrutX == TailX[k] && FrutY == TailY[k])
-						continue;
-				break;
-			}
-			++tailN;
+			frut_step.push_back(Frut);
+			steps_per_frut.push_back(steps_without_frut);
 			steps_without_frut = 0;
+			spawn_frut();
+			Tail.push_back(Scoord()); //korotkii kostil
 		}
 		else {
 			++steps_without_frut;
-			if (is_circle_restriced && max_availible_steps < steps_without_frut) {
-				gameOver = true;
-			}
+
 		}
-		int headX = x;
-		int headY = y;
-		for (int i = tailN - 1; i > 0; --i) {
-			TailX[i] = TailX[i - 1];
-			TailY[i] = TailY[i - 1];
-		}
-		TailX[0] = headX;
-		TailY[0] = headY;
-		switch (dir)
-		{
-		case UP:
-			y--;
-			break;
-		case RIGHT:
-			x++;
-			break;
-		case LEFT:
-			x--;
-			break;
-		case DOWN:
-			y++;
-			break;
-		}
-		if (x == heght) gameOver = true;
-		if (y == wight) gameOver = true;
-		if (x < 0) gameOver = true;
-		if (y < 0) gameOver = true;
-		for (int k = 1; k < tailN; k++) {
-			if (x == TailX[k] && y == TailY[k]) gameOver = true;
-		}
+		move_snake_forward();
+		gameOver = is_gameOver();
 	}
 	void setcur(int a, int b) {
 		COORD coord;
 		coord.X = a;
 		coord.Y = b;
 		SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
+	}
+
+	bool spawn_frut() {
+		while (true) {
+			Frut.X = rand() % heght;
+			Frut.Y = rand() % wight;
+			if (Frut == Head) continue;
+			if (is_tail(Frut)) continue;
+			break;
+		}
+		return true;
+	}
+	
+	bool is_tail(const Scoord& Dot) {
+		for (auto& i : Tail)
+			if (Dot == i)
+				return true;
+		return false;
+	}
+	bool is_gameOver() {
+		if (is_circle_restriced && max_availible_steps < steps_without_frut) {
+			gameOver = true;
+		}
+		if (Head.X == heght) return true;
+		if (Head.Y == wight) return true;
+		if (Head.X < 0) return true;
+		if (Head.Y < 0) return true;
+		if (is_tail(Head)) return true;
+		return false;
+	}
+
+	void move_snake_forward() {
+		for (int i = Tail.size() - 1; i > 0; --i) {
+			Tail[i] = Tail[i - 1];
+		}
+		if(score) Tail[0] = Head;
+
+		switch (dir)
+		{
+		case UP:
+			Head.Y--;
+			break;
+		case RIGHT:
+			Head.X++;
+			break;
+		case LEFT:
+			Head.X--;
+			break;
+		case DOWN:
+			Head.Y++;
+			break;
+		}
+	}
+	void move_snake_backward() {
+		if (score) {
+			for (int i = 0; i < Tail.size() - 1; ++i) {
+				Tail[i] = Tail[i + 1];
+			}
+			Tail.end()[-1] = tail_end_step.end()[-1];
+		}
+		switch (dir)
+		{
+		case UP:
+			Head.Y++;
+			break;
+		case RIGHT:
+			Head.X--;
+			break;
+		case LEFT:
+			Head.X++;
+			break;
+		case DOWN:
+			Head.Y--;
+			break;
+		}
 	}
 };
 
