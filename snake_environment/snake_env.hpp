@@ -3,11 +3,15 @@
 #include <iostream>
 #include <Windows.h>
 #include <vector>
+//#include "MCTS.hpp"
+#include "MCTS_copy.hpp"
 
 
-class snake_env {
+class snake_env : public IEnviroment {
 public:
-	snake_env(int _wight, int _heght): wight(_wight), heght(_heght), max_availible_steps(_wight * _heght * 2)
+	bool operator==(snake_env const& rhs) const { return tied() == rhs.tied(); }
+
+	snake_env(int _wight, int _heght) : wight(_wight), heght(_heght), max_availible_steps(_wight* _heght * 2)
 	{
 		reset();
 	}
@@ -60,6 +64,7 @@ public:
 		std::cout << "Sorce:" << score << std::endl;
 		std::cout << "FrutCoords:" << FrutX << " " << FrutY << std::endl;
 		std::cout << "Direction: " << direction() << "       " << std::endl;
+		std::cout << "steps_left: " << max_availible_steps - steps_without_frut << "     " << std::endl;
 	}
 	void step(const int _input_direction) {
 		++step_counter;
@@ -91,14 +96,14 @@ public:
 
 		if (x == FrutX && y == FrutY) {
 			--tailN;
-			TailX.pop_back();
-			TailY.pop_back();
+			//TailX.pop_back();
+			//TailY.pop_back();
 		}
 		else {
 			TailX[tailN - 1] = tail_end_step.end()[-1].first;
 			TailY[tailN - 1] = tail_end_step.end()[-1].second;
 		}
-		
+
 
 		switch (dir)
 		{
@@ -175,7 +180,7 @@ public:
 		double sensor11 = -1;
 		double sensor12 = -1;
 		for (int i = 0; i < tailN; ++i) {
-			if (x == TailX[i]) (y > TailY[i]) ? sensor10 =  min(max(sensor10, sensor2), y - TailY[i] - 1) : sensor12 = min(max(sensor12, sensor4), TailY[i] - y - 1);
+			if (x == TailX[i]) (y > TailY[i]) ? sensor10 = min(max(sensor10, sensor2), y - TailY[i] - 1) : sensor12 = min(max(sensor12, sensor4), TailY[i] - y - 1);
 			if (y == TailY[i]) (x > TailX[i]) ? sensor9 = min(max(sensor9, sensor1), x - TailX[i] - 1) : sensor11 = min(max(sensor11, sensor3), TailX[i] - x - 1);
 		}
 		std::vector<double> ans;
@@ -200,11 +205,11 @@ public:
 		}
 		return ans;
 	}
-	bool is_done() {
+	bool is_done() const {
 		return gameOver;
 	}
 
-	int snake_len() {
+	int snake_len() const {
 		return tailN;
 	}
 	double reward() {
@@ -248,7 +253,27 @@ public:
 		return { 0, 0, 0, 0 };
 	}
 
+	int actions_number() const override {
+		return 3;
+	}
+	double evaluate() const override {
+		if (is_done())
+			return 0;
+		return snake_len() + 1 - (double)steps_without_frut / 10;
+	}
+	std::shared_ptr<IEnviroment> clone() const {
+		return (std::shared_ptr<IEnviroment>)(new snake_env(*this));
+	}
+
 private:
+	std::tuple<const int, const int, int, int, int, int, int, int, std::vector<int>, std::vector<int>, bool,
+		int, std::vector<std::pair<int, int>>,
+		std::vector<std::pair<int, int>>, std::vector<int>,
+		bool, const int, int> tied() const {
+		return std::tie(wight, heght, FrutX, FrutY, x, y, score, tailN, TailX, TailY, gameOver, step_counter,
+			tail_end_step, frut_step, score_step, is_circle_restriced, max_availible_steps, steps_without_frut);
+	}
+
 	const int wight, heght;
 	int x, y, FrutX, FrutY;
 	int score = 0;
@@ -314,7 +339,7 @@ private:
 		}
 		else {
 			++steps_without_frut;
-			if (is_circle_restriced && max_availible_steps < steps_without_frut) {
+			if (is_circle_restriced&& max_availible_steps < steps_without_frut) {
 				gameOver = true;
 			}
 		}
@@ -341,8 +366,8 @@ private:
 			y++;
 			break;
 		}
-		if (x == heght - 1) gameOver = true;
-		if (y == wight - 1) gameOver = true;
+		if (x == heght) gameOver = true;
+		if (y == wight) gameOver = true;
 		if (x < 0) gameOver = true;
 		if (y < 0) gameOver = true;
 		for (int k = 1; k < tailN; k++) {
@@ -356,4 +381,3 @@ private:
 		SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), coord);
 	}
 };
-
