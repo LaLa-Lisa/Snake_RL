@@ -9,7 +9,7 @@ public:
 	int X, Y;
 	Scoord() : X(-1), Y(-1) {}
 	Scoord(int _x, int _y) : X(_x), Y(_y) {}
-	bool operator==(const Scoord& right) { return X == right.X && Y == right.Y;  }
+	bool operator==(const Scoord& right) const { return X == right.X && Y == right.Y;  }
 	Scoord& operator=(Scoord& right)
 	{
 		X = right.X; 
@@ -31,6 +31,7 @@ public:
 		score = 0;
 		Head.X = wight / 2;
 		Head.Y = heght / 2;
+		Tail.reserve(wight * heght);
 		spawn_frut();
 		dir = UP;
 	}
@@ -66,47 +67,10 @@ public:
 	}
 	void step(const int _input_direction) {
 		++step_counter;
-		if(score) tail_end_step.push_back(Tail.end()[-1]);
-		direction_step.push_back(dir);
 		Input(_input_direction);
 		Logic();
 	}
-	void backstep(const int _prev_direction) {
-		if (gameOver) gameOver = false;
-		//Input(_prev_direction);
-		if (!step_counter) {
-			throw std::invalid_argument("no steps before");
-		}
-		/*if (dir != direction_step.end()[-1]) {
-			throw std::invalid_argument("wrong last action");
-		}*/
-		//dir = direction_step.end()[-1];
-		//fruktic
-		
-
-		//hvostic
-		if (score && frut_step.end()[-1] == Head) {
-			Frut = frut_step.end()[-1];
-			frut_step.pop_back();
-
-			Tail.pop_back();
-			--score;
-
-			steps_without_frut = steps_per_frut.end()[-1];
-		}
-		else {
-			--steps_without_frut;
-		}
-		move_snake_backward();
-
-		
-		dir = direction_step.end()[-1];
-
-		--step_counter;
-		tail_end_step.pop_back();
-		direction_step.pop_back();
-	}
-
+	
 	std::vector<double> observe() {
 		double sensor1 = Head.X;
 		double sensor2 = Head.Y;
@@ -176,17 +140,17 @@ public:
 		}
 		return ans;
 	}
-	bool is_done() {
+	bool is_done() const {
 		return gameOver;
 	}
-	int snake_len() {
+	int snake_len() const {
 		return Tail.size();
 	}
-	double reward() {
+	double reward() const {
 		return score;
 	}
 
-	std::string direction() {
+	std::string direction() const {
 		switch (dir)
 		{
 		case UP:
@@ -233,17 +197,12 @@ private:
 	enum mDirection { UP, RIGHT, LEFT, DOWN };
 	mDirection dir;
 
-	//backstep
 	int step_counter = 0;
-	std::vector<Scoord> tail_end_step;
-	std::vector<Scoord> frut_step;
-	std::vector<mDirection> direction_step;
 
 	//anti circle
 	bool is_circle_restriced = true;
 	const int max_availible_steps;
 	int steps_without_frut = 0;
-	std::vector<int> steps_per_frut;
 
 	mDirection Input(const int way) {
 		switch (dir)
@@ -276,15 +235,12 @@ private:
 	void Logic() {
 		if (Head == Frut) {
 			++score;
-			frut_step.push_back(Frut);
-			steps_per_frut.push_back(steps_without_frut);
 			steps_without_frut = 0;
 			spawn_frut();
 			Tail.push_back(Scoord()); //korotkii kostil
 		}
 		else {
 			++steps_without_frut;
-
 		}
 		move_snake_forward();
 		gameOver = is_gameOver();
@@ -307,16 +263,14 @@ private:
 		return true;
 	}
 	
-	bool is_tail(const Scoord& Dot) {
+	bool is_tail(const Scoord& Dot) const {
 		for (auto& i : Tail)
 			if (Dot == i)
 				return true;
 		return false;
 	}
-	bool is_gameOver() {
-		if (is_circle_restriced && max_availible_steps < steps_without_frut) {
-			gameOver = true;
-		}
+	bool is_gameOver() const {
+		if (is_circle_restriced && max_availible_steps < steps_without_frut) return true;
 		if (Head.X == heght) return true;
 		if (Head.Y == wight) return true;
 		if (Head.X < 0) return true;
@@ -347,28 +301,6 @@ private:
 			break;
 		}
 	}
-	void move_snake_backward() {
-		if (score && tail_end_step.size()) {
-			for (int i = 0; i < Tail.size() - 1; ++i) {
-				Tail[i] = Tail[i + 1];
-			}
-			Tail.end()[-1] = tail_end_step.end()[-1];
-		}
-		switch (dir)
-		{
-		case UP:
-			Head.Y++;
-			break;
-		case RIGHT:
-			Head.X--;
-			break;
-		case LEFT:
-			Head.X++;
-			break;
-		case DOWN:
-			Head.Y--;
-			break;
-		}
-	}
+
 };
 
