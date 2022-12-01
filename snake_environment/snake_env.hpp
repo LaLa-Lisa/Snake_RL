@@ -140,6 +140,50 @@ public:
 		}
 		return ans;
 	}
+
+	std::vector<double> observe_light() const{
+		double sensor1 = Head.X;
+		double sensor2 = Head.Y;
+		double sensor3 = heght - Head.X - 1;
+		double sensor4 = wight - Head.Y - 1;
+		
+		double sensor5 = -1;
+		double sensor6 = -1;
+		double sensor7 = -1;
+		double sensor8 = -1;
+		if (Head.X == Frut.X) (Head.Y > Frut.Y) ? sensor6 = Head.Y - Frut.Y - 1 : sensor8 = Frut.Y - Head.Y - 1;
+		if (Head.Y == Frut.Y) (Head.X > Frut.X) ? sensor5 = Head.X - Frut.X - 1 : sensor7 = Frut.X - Head.X - 1;
+
+		double sensor9 = -1;
+		double sensor10 = -1;
+		double sensor11 = -1;
+		double sensor12 = -1;
+		for (int i = 0; i < Tail.size(); ++i) {
+			if (Head.X == Tail[i].X) (Head.Y > Tail[i].Y) ? sensor10 = min(max(sensor10, sensor2), Head.Y - Tail[i].Y - 1) : sensor12 = min(max(sensor12, sensor4), Tail[i].Y - Head.Y - 1);
+			if (Head.Y == Tail[i].Y) (Head.X > Tail[i].X) ? sensor9 = min(max(sensor9, sensor1), Head.X - Tail[i].X - 1) : sensor11 = min(max(sensor11, sensor3), Tail[i].X - Head.X - 1);
+		}
+		std::vector<double> ans;
+		switch (dir)
+		{
+		case UP:
+			ans = { sensor1, sensor2, sensor3, sensor5, sensor6, sensor7, sensor9, sensor10, sensor11 };
+			break;
+		case RIGHT:
+			ans = { sensor2, sensor3, sensor4, sensor6, sensor7, sensor8, sensor10, sensor11, sensor12 };
+			break;
+		case LEFT:
+			ans = { sensor4, sensor1, sensor2, sensor8, sensor5, sensor6, sensor12, sensor9, sensor10 };
+			break;
+		case DOWN:
+			ans = { sensor3, sensor4, sensor1, sensor7, sensor8, sensor5, sensor11, sensor12, sensor9 };
+			break;
+		}
+
+		for (auto& i : direction_output()) {
+			ans.push_back((double)i);
+		}
+		return ans;
+	}
 	bool is_done() const {
 		return gameOver;
 	}
@@ -168,7 +212,7 @@ public:
 		}
 		return "STOP";
 	}
-	std::vector<int> direction_output() {
+	std::vector<int> direction_output() const {
 		switch (dir)
 		{
 		case UP:
