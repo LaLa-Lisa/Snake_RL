@@ -35,5 +35,8 @@
     <ClInclude Include="LGenetic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="MCTS_copy.hpp">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

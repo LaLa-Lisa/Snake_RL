@@ -161,6 +161,7 @@
   <ItemGroup>
     <ClInclude Include="act_fun.hpp" />
     <ClInclude Include="LGenetic.h" />
+    <ClInclude Include="MCTS_copy.hpp" />
     <ClInclude Include="NeuralN.hpp" />
     <ClInclude Include="snake_env.hpp" />
   </ItemGroup>
