@@ -205,6 +205,9 @@ public:
 	double reward() const {
 		return score;
 	}
+	int steps_without_fruit() const {
+		return this->steps_without_frut;
+	}
 
 	std::string direction() const {
 		switch (dir)
@@ -292,6 +295,11 @@ private:
 		if (Head == Frut) {
 			++score;
 			steps_without_frut = 0;
+			// end game if snake has max size
+			if (Tail.size() + 1 == heght * wight) {
+				gameOver = true;
+				return;
+			}
 			spawn_frut();
 			Tail.push_back(Scoord()); //korotkii kostil
 		}
