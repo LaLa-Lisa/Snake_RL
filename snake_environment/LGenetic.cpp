@@ -22,11 +22,11 @@ LGenetic::LGenetic(int popSize, int genSize,
 	int m = pop[0].size();
 	std::vector<double> numbers(m);
 	for (auto& chrom : pop) {
-		for (int i = 0; i < m; i++) numbers[i] = i;
+		for (int i = 0; i < m; i++) numbers[i] = (double)rand() / RAND_MAX/3;
 
-		unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-		auto rng = std::default_random_engine{ seed };
-		shuffle(numbers.begin(), numbers.end(), rng);
+		//unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+		//auto rng = std::default_random_engine{ seed };
+		//shuffle(numbers.begin(), numbers.end(), rng);
 		chrom = numbers;
 	}
 	b_gene = pop[0];
@@ -421,6 +421,19 @@ void LGenetic::mutationAA(std::vector<double>& x, int genNum) {
 		x[j] += mut;
 	}
 }
+/*void LGenetic::mutationAA(std::vector<double>& x, int genNum) {
+    // mutation gauss
+	std::random_device rd;
+	std::mt19937 e2(rd());
+	std::normal_distribution<> dist(0, 3.0 / 3.0);
+	int num = rand() % (pop[0].size() / 10);
+	double mut = dist(e2);
+
+	for (int i = 0; i < num; i++) {
+		int j = rand() % pop[0].size();
+		x[j] += dist(e2);
+	}
+}*/
 void LGenetic::DR(std::vector<double>& x) {
 	double b = 0.05;
 	std::default_random_engine generator;
