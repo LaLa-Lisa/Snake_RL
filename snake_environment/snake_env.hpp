@@ -3,6 +3,9 @@
 #include <iostream>
 #include <Windows.h>
 #include <vector>
+#include <cmath>
+
+#define PI 3.14159265
 
 struct Scoord {
 public:
@@ -184,6 +187,10 @@ public:
 		}
 		return ans;
 	}
+
+	std::vector<double> observe2() {
+
+	}
 	bool is_done() const {
 		return gameOver;
 	}
@@ -346,5 +353,55 @@ private:
 		}
 	}
 
+	constexpr bool is_under_line(const int k, const int b, const int x, const int y) {
+		return k * x + b > y;
+	}
+	constexpr bool is_cross(const int k, const int b, const int x, const int y) {
+		bool UL = is_under_line(k, b, x, y);
+		bool UR = is_under_line(k, b, x + 1, y);
+		bool DL = is_under_line(k, b, x, y + 1);
+		bool DR = is_under_line(k, b, x + 1, y + 1);
+		return !((UL == UR) && (UR == DL) && (DL == DR));
+	}
+	constexpr double distance(const int x1, const int y1, const int x2, const int y2) {
+		return sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+	}
+	std::pair<double, double> sensor(const int x0, const int y0, const int x, const int y, const int alpha) {
+		double k = tan(alpha);
+		double c_x = (double)x0 + 1 / 2;
+		double c_y = (double)y0 + 1 / 2;
+		double b = c_y - k * c_x;
+
+		double obs = 0;
+		if (!is_cross(k, b, x, y)) {
+			obs = distance(c_x, c_y, x + 1 / 2, y + 1 / 2);
+		}
+		if (alpha > PI / 4 && alpha < 3 * PI / 4) {
+			if (c_y < y + 1 / 2)
+				return std::make_pair(0, obs);
+			else
+				return std::make_pair(obs, 0);
+		}
+		else {
+			if (c_y < y + 1 / 2)
+				return std::make_pair(0, obs);
+			else
+				return std::make_pair(obs, 0);
+		}
+		return std::make_pair(0, 0);
+	}
+	void check_sensors(const int x, const int y, std::vector<double> sens_data, std::vector<double> sens_angles) {
+		/*if (sens_data.size() != 2 * sens_angles.size()) throw;
+		for (int i = 0; i < sens_agles.size(); ++i) {
+			std::pair<double, double> obs = sensor(x, y, sens_angles[i])
+		}
+			a, b = sensor(obj, sens_angle[i])
+			if binary :
+				if a : sens_data[2 * i] = 1
+					if b : sens_data[2 * i + 1] = 1
+					else :
+						if a : sens_data[2 * i] = max(sens_data[2 * i], a)
+							if b : sens_data[2 * i + 1] = max(sens_data[2 * i + 1], b)*/
+	}
 };
 
