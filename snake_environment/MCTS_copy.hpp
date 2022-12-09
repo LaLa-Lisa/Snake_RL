@@ -11,7 +11,7 @@ class IEnviroment
 public:
 	virtual void step(const int action) = 0;  // совершает шаг по номеру действия из actions_number
 	virtual int actions_number() const = 0;  // возращает количество возможных действий в текущей ситуации
-	virtual double evaluate() const = 0;  // возращает оценку текущей ситуации
+	virtual double evaluate(const int action) const = 0;  // возращает оценку текущей ситуации
 	virtual std::shared_ptr<IEnviroment> clone() const = 0;  // 
 };
 
@@ -143,7 +143,7 @@ private:
 			int new_id = nodes_count(); // got new id (size is 1 more than max id)
 			TREE.addNode(Node(new_id, node_id, i, *cur_node.env)); // add Node and gave it parent action
 			TREE[new_id].env->step(i);
-			TREE[new_id].Q = TREE[new_id].env->evaluate(); // make an evaluation (simulation step)
+			TREE[new_id].Q = TREE[new_id].env->evaluate(TREE[new_id].action); // make an evaluation (simulation step)
 
 			TREE[new_id].update_metrics(TREE[new_id].Q, 1);
 		}
@@ -216,7 +216,7 @@ namespace testMCTS {
 		int actions_number() const override {
 			return 2;
 		}
-		double evaluate() const override {
+		double evaluate(const int action) const override {
 			return (double)rand() / RAND_MAX;
 			//return value;
 		}
@@ -247,7 +247,7 @@ namespace testMCTS {
 		int actions_number() const override {
 			return 2;
 		}
-		double evaluate() const override {
+		double evaluate(const int action) const override {
 			//return (double)rand() / RAND_MAX;
 			if (values_vec.size() < 100)
 				return value;
