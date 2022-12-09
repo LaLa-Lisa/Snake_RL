@@ -58,7 +58,7 @@ public:
 		return arma::conv_to< vector<double> >::from(in_layer);
 	}
 
-	void read_weitghs(std::istream& gin) {
+	void read_weitghs(std::ifstream& gin) {
 		for (auto& i : layers)
 			for (int j = 0; j < i.n_rows; ++j)
 				for (int k = 0; k < i.n_cols; ++k)
