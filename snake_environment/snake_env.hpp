@@ -143,6 +143,182 @@ public:
 		}
 		return ans;
 	}
+	std::vector<double> observe_hard() const {
+		double s_wall_1 = Head.X;
+		double s_wall_2 = Head.Y;
+		double s_wall_3 = heght - Head.X - 1.0;
+		double s_wall_4 = wight - Head.Y - 1.0;
+		double s_diag_wall_1 = min(s_wall_1, s_wall_2);
+		double s_diag_wall_2 = min(s_wall_2, s_wall_3);
+		double s_diag_wall_3 = min(s_wall_3, s_wall_4);
+		double s_diag_wall_4 = min(s_wall_4, s_wall_1);
+		double s_tail_1 = -1;
+		double s_tail_2 = -1;
+		double s_tail_3 = -1;
+		double s_tail_4 = -1;
+		for (int i = 0; i < Tail.size(); ++i) {
+			if (Head.X == Tail[i].X) (Head.Y > Tail[i].Y) ? s_tail_2 = min(max(s_tail_2, s_wall_2), Head.Y - Tail[i].Y - 1) : s_tail_4 = min(max(s_tail_4, s_wall_4), Tail[i].Y - Head.Y - 1);
+			if (Head.Y == Tail[i].Y) (Head.X > Tail[i].X) ? s_tail_1 = min(max(s_tail_1, s_wall_1), Head.X - Tail[i].X - 1) : s_tail_3 = min(max(s_tail_3, s_wall_3), Tail[i].X - Head.X - 1);
+		}
+		double s_diag_tail_1 = -1;
+		double s_diag_tail_2 = -1;
+		double s_diag_tail_3 = -1;
+		double s_diag_tail_4 = -1;
+		double s_diag_fruit_1 = -1;
+		double s_diag_fruit_2 = -1;
+		double s_diag_fruit_3 = -1;
+		double s_diag_fruit_4 = -1;
+		for (int i = 0; i < min(s_wall_1, s_wall_2); ++i) {
+			if (s_diag_tail_1 == -1 && is_tail(Scoord(Head.X - i, Head.Y - i))) {
+				s_diag_tail_1 = i;
+				//break;
+			}
+			if (Head.X - i == Frut.X && Head.Y - i == Frut.Y) {
+				s_diag_fruit_1 = i - 1;
+			}
+		}
+
+		for (int i = 0; i < min(s_wall_2, s_wall_3); ++i) {
+			if (s_diag_tail_2 == -1 && is_tail(Scoord(Head.X + i, Head.Y - i))) {
+				s_diag_tail_2 = i;
+				//break;
+			}
+			if (Head.X + i == Frut.X && Head.Y - i == Frut.Y) {
+				s_diag_fruit_2 = i - 1;
+			}
+		}
+
+		for (int i = 0; i < min(s_wall_3, s_wall_4); ++i) {
+			if (s_diag_tail_3 == -1 && is_tail(Scoord(Head.X + i, Head.Y + i))) {
+				s_diag_tail_3 = i;
+				//break;
+			}
+			if (Head.X + i == Frut.X && Head.Y + i == Frut.Y) {
+				s_diag_fruit_3 = i - 1;
+			}
+		}
+		for (int i = 0; i < min(s_wall_4, s_wall_1); ++i) {
+			if (s_diag_tail_4 == -1 && is_tail(Scoord(Head.X - i, Head.Y + i))) {
+				s_diag_tail_4 = i;
+				//break;
+			}
+			if (Head.X - i == Frut.X && Head.Y + i == Frut.Y) {
+				s_diag_fruit_4 = i -1;
+			}
+		}
+
+
+
+		double s_fruit_1 = -1;
+		double s_fruit_2 = -1;
+		double s_fruit_3 = -1;
+		double s_fruit_4 = -1;
+		if (Head.X == Frut.X) (Head.Y > Frut.Y) ? s_fruit_2 = Head.Y - Frut.Y - 1 : s_fruit_4 = Frut.Y - Head.Y - 1;
+		if (Head.Y == Frut.Y) (Head.X > Frut.X) ? s_fruit_1 = Head.X - Frut.X - 1 : s_fruit_3 = Frut.X - Head.X - 1;
+
+		
+		std::vector<double> ans;
+		/*ans = {
+			s_wall_1, s_wall_2, s_wall_3, s_wall_4,
+			s_diag_wall_1, s_diag_wall_2, s_diag_wall_3, s_diag_wall_4,
+			s_tail_1, s_tail_2, s_tail_3, s_tail_4,
+			s_diag_tail_1, s_diag_tail_2, s_diag_tail_3, s_diag_tail_4,
+			s_fruit_1, s_fruit_2, s_fruit_3, s_fruit_4,
+			s_diag_fruit_1, s_diag_fruit_2, s_diag_fruit_3, s_diag_fruit_4
+		};*/
+		/*
+		switch (dir)
+		{
+		case UP:
+			ans = {
+				s_wall_1, s_wall_2, s_wall_3, s_wall_4,
+				s_diag_wall_1, s_diag_wall_2, s_diag_wall_3, s_diag_wall_4,
+				s_tail_1, s_tail_2, s_tail_3, s_tail_4,
+				s_diag_tail_1, s_diag_tail_2, s_diag_tail_3, s_diag_tail_4,
+				s_fruit_1, s_fruit_2, s_fruit_3, s_fruit_4,
+				s_diag_fruit_1, s_diag_fruit_2, s_diag_fruit_3, s_diag_fruit_4
+			};
+			break;
+		case RIGHT:
+			ans = {
+				s_wall_2, s_wall_3, s_wall_4, s_wall_1,
+				s_diag_wall_2, s_diag_wall_3, s_diag_wall_4, s_diag_wall_1,
+				s_tail_2, s_tail_3, s_tail_4, s_tail_1,
+				s_diag_tail_2, s_diag_tail_3, s_diag_tail_4, s_diag_tail_1,
+				s_fruit_2, s_fruit_3, s_fruit_4, s_fruit_1,
+				s_diag_fruit_2, s_diag_fruit_3, s_diag_fruit_4, s_diag_fruit_1
+			};
+			break;
+		case LEFT:
+			ans = {
+				s_wall_4, s_wall_1, s_wall_2, s_wall_3,
+				s_diag_wall_4, s_diag_wall_1, s_diag_wall_2, s_diag_wall_3,
+				s_tail_4, s_tail_1, s_tail_2, s_tail_3,
+				s_diag_tail_4, s_diag_tail_1, s_diag_tail_2, s_diag_tail_3,
+				s_fruit_4, s_fruit_1, s_fruit_2, s_fruit_3,
+				s_diag_fruit_4, s_diag_fruit_1, s_diag_fruit_2, s_diag_fruit_3
+			};
+			break;
+		case DOWN:
+			ans = {
+				s_wall_3, s_wall_4, s_wall_1, s_wall_2,
+				s_diag_wall_3, s_diag_wall_4, s_diag_wall_1, s_diag_wall_2,
+				s_tail_3, s_tail_4, s_tail_1, s_tail_2,
+				s_diag_tail_3, s_diag_tail_4, s_diag_tail_1, s_diag_tail_2,
+				s_fruit_3, s_fruit_4, s_fruit_1, s_fruit_2,
+				s_diag_fruit_3, s_diag_fruit_4, s_diag_fruit_1, s_diag_fruit_2
+			};
+			break;
+		}*/
+		switch (dir)
+		{
+		case UP:
+			ans = {
+				s_wall_1, s_wall_2, s_wall_3, s_wall_4,
+				s_diag_wall_1, s_diag_wall_2, s_diag_wall_3, s_diag_wall_4,
+				s_tail_1, s_tail_2, s_tail_3, s_tail_4,
+				s_diag_tail_1, s_diag_tail_2, s_diag_tail_3, s_diag_tail_4,
+				s_fruit_1, s_fruit_2, s_fruit_3, s_fruit_4,
+				s_diag_fruit_1, s_diag_fruit_2, s_diag_fruit_3, s_diag_fruit_4
+			};
+			break;
+		case RIGHT:
+			ans = {
+				s_wall_4, s_wall_1, s_wall_2, s_wall_3,
+				s_diag_wall_4, s_diag_wall_1, s_diag_wall_2, s_diag_wall_3,
+				s_tail_4, s_tail_1, s_tail_2, s_tail_3,
+				s_diag_tail_4, s_diag_tail_1, s_diag_tail_2, s_diag_tail_3,
+				s_fruit_4, s_fruit_1, s_fruit_2, s_fruit_3,
+				s_diag_fruit_4, s_diag_fruit_1, s_diag_fruit_2, s_diag_fruit_3
+			};
+			break;
+		case LEFT:
+			ans = {
+				s_wall_2, s_wall_3, s_wall_4, s_wall_1,
+				s_diag_wall_2, s_diag_wall_3, s_diag_wall_4, s_diag_wall_1,
+				s_tail_2, s_tail_3, s_tail_4, s_tail_1,
+				s_diag_tail_2, s_diag_tail_3, s_diag_tail_4, s_diag_tail_1,
+				s_fruit_2, s_fruit_3, s_fruit_4, s_fruit_1,
+				s_diag_fruit_2, s_diag_fruit_3, s_diag_fruit_4, s_diag_fruit_1
+			};
+			break;
+		case DOWN:
+			ans = {
+				s_wall_3, s_wall_4, s_wall_1, s_wall_2,
+				s_diag_wall_3, s_diag_wall_4, s_diag_wall_1, s_diag_wall_2,
+				s_tail_3, s_tail_4, s_tail_1, s_tail_2,
+				s_diag_tail_3, s_diag_tail_4, s_diag_tail_1, s_diag_tail_2,
+				s_fruit_3, s_fruit_4, s_fruit_1, s_fruit_2,
+				s_diag_fruit_3, s_diag_fruit_4, s_diag_fruit_1, s_diag_fruit_2
+			};
+			break;
+		}
+		//ans.push_back((double)tailN);
+		for (auto& i : direction_output()) {
+			ans.push_back((double)i);
+		}
+		return ans;
+	}
 
 	std::vector<double> observe_light() const{
 		double sensor1 = Head.X;
@@ -198,6 +374,9 @@ public:
 	}
 	bool is_done() const {
 		return gameOver;
+	}
+	int steps_counter() const {
+		return step_counter;
 	}
 	int snake_len() const {
 		return Tail.size();
