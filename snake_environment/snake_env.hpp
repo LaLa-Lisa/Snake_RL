@@ -223,6 +223,50 @@ public:
 			s_fruit_1, s_fruit_2, s_fruit_3, s_fruit_4,
 			s_diag_fruit_1, s_diag_fruit_2, s_diag_fruit_3, s_diag_fruit_4
 		};*/
+		/*
+		switch (dir)
+		{
+		case UP:
+			ans = {
+				s_wall_1, s_wall_2, s_wall_3, s_wall_4,
+				s_diag_wall_1, s_diag_wall_2, s_diag_wall_3, s_diag_wall_4,
+				s_tail_1, s_tail_2, s_tail_3, s_tail_4,
+				s_diag_tail_1, s_diag_tail_2, s_diag_tail_3, s_diag_tail_4,
+				s_fruit_1, s_fruit_2, s_fruit_3, s_fruit_4,
+				s_diag_fruit_1, s_diag_fruit_2, s_diag_fruit_3, s_diag_fruit_4
+			};
+			break;
+		case RIGHT:
+			ans = {
+				s_wall_2, s_wall_3, s_wall_4, s_wall_1,
+				s_diag_wall_2, s_diag_wall_3, s_diag_wall_4, s_diag_wall_1,
+				s_tail_2, s_tail_3, s_tail_4, s_tail_1,
+				s_diag_tail_2, s_diag_tail_3, s_diag_tail_4, s_diag_tail_1,
+				s_fruit_2, s_fruit_3, s_fruit_4, s_fruit_1,
+				s_diag_fruit_2, s_diag_fruit_3, s_diag_fruit_4, s_diag_fruit_1
+			};
+			break;
+		case LEFT:
+			ans = {
+				s_wall_4, s_wall_1, s_wall_2, s_wall_3,
+				s_diag_wall_4, s_diag_wall_1, s_diag_wall_2, s_diag_wall_3,
+				s_tail_4, s_tail_1, s_tail_2, s_tail_3,
+				s_diag_tail_4, s_diag_tail_1, s_diag_tail_2, s_diag_tail_3,
+				s_fruit_4, s_fruit_1, s_fruit_2, s_fruit_3,
+				s_diag_fruit_4, s_diag_fruit_1, s_diag_fruit_2, s_diag_fruit_3
+			};
+			break;
+		case DOWN:
+			ans = {
+				s_wall_3, s_wall_4, s_wall_1, s_wall_2,
+				s_diag_wall_3, s_diag_wall_4, s_diag_wall_1, s_diag_wall_2,
+				s_tail_3, s_tail_4, s_tail_1, s_tail_2,
+				s_diag_tail_3, s_diag_tail_4, s_diag_tail_1, s_diag_tail_2,
+				s_fruit_3, s_fruit_4, s_fruit_1, s_fruit_2,
+				s_diag_fruit_3, s_diag_fruit_4, s_diag_fruit_1, s_diag_fruit_2
+			};
+			break;
+		}*/
 		switch (dir)
 		{
 		case UP:
@@ -318,6 +362,9 @@ public:
 	}
 	bool is_done() const {
 		return gameOver;
+	}
+	int steps_counter() const {
+		return step_counter;
 	}
 	int snake_len() const {
 		return Tail.size();
