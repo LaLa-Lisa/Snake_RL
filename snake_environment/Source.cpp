@@ -24,7 +24,7 @@ int argmax(const std::vector<double>& v) {
 
 const int g_N = 5;
 const snake_env g_Env(g_N, g_N);
-const NeuralN g_MyNet({ (int)g_Env.observe_hard().size(), 10, 3 }, { activation_type::RELU, activation_type::RELU });
+const NeuralN g_MyNet({ (int)g_Env.observe_hard().size(), 20, 12, 4 }, { activation_type::RELU, activation_type::RELU, activation_type::RELU });
 
 
 
@@ -66,10 +66,23 @@ double show(const std::vector<double>& x) {
 	snake_env Env = g_Env;
 	system("cls");
 	while (!Env.is_done()) {
-		auto res = local_Net.forward(Env.observe_light());
+		auto res = local_Net.forward(Env.observe_hard());
 
 		Env.step(argmax(res));
+
 		Env.console_render();
+		int ii = 0;
+		for (auto& i : Env.observe_hard()) {
+			std::cout << i << ' ';
+			ii++;
+			if (ii % 4 == 0) {
+				if (ii % 8 == 0)
+					std::cout << '\n';
+				else 
+					std::cout << '\t';
+			}
+		}
+
 		Sleep(100);
 	}
 	
@@ -77,12 +90,12 @@ double show(const std::vector<double>& x) {
 }
 
 int main() {
-	LGenetic model(64, g_MyNet.paramsNumber(), fitness_x10);
-	model.rand_population();
-	model.set_crossover(LGenetic::SBX);
+	LGenetic model(500, g_MyNet.paramsNumber(), fitness_x10);
+	model.rand_population_normal();
+	model.set_crossover(LGenetic::SPBX);
 	model.set_mutation(LGenetic::AM);
 	model.set_loss(loss);
-	model.learn(10000);
+	model.learn(2000);
 	auto best = model.best_gene();
 	
 	while (true) {

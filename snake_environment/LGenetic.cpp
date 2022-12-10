@@ -48,7 +48,7 @@ void LGenetic::learn(int generationsNum) {
 		}
 
 		crossover();
-		//(rand() % 100 > 50) ? crossover() : this->TPINV();
+		//(rand() % 100 > 50) ? crossover() : this->SB();
 		for (int i=1;i<pop.size();++i)
 			if (rand() % 100 < mutation_rate) mutation(pop[i]);
 	}
@@ -208,7 +208,7 @@ void LGenetic::SPB(){
 }
 void LGenetic::SB() {
 	int n = pop.size() / 2;
-	double eta = 1;
+	double eta = 100;
 	for (int i = 0; i < n - 1; i += 2) {
 		pop[n + i] = pop[i];
 		pop[n + i + 1] = pop[i + 1];
@@ -401,14 +401,15 @@ void LGenetic::mutationP(std::vector<double>& x) {
 		x[j] += mut;
 	}
 }
+
 void LGenetic::mutationA(std::vector<double>& x) {
 	int num = rand() % (pop[0].size() / 5);
-	double mut = (double)(rand() % 5000) / 1000;
+	double mut = (double)(rand() % 1500) / 1000;
 	if (rand() % 2)
 		mut *= -1;
 	for (int i = 0; i < num; i++) {
 		int j = rand() % pop[0].size();
-		x[j] *= mut;
+		x[j] += mut;
 	}
 }
 void LGenetic::mutationAA(std::vector<double>& x, int genNum) {

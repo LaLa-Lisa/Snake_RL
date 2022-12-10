@@ -248,6 +248,13 @@ public:
 			s_fruit_1, s_fruit_2, s_fruit_3, s_fruit_4,
 			s_diag_fruit_1, s_diag_fruit_2, s_diag_fruit_3, s_diag_fruit_4
 		};
+
+		for (int i = 0; i < ans.size(); i++) {
+			if (ans[i] == NON)
+				ans[i] = 0;
+			else
+				ans[i] = 1.0 / (ans[i] + 1);
+		}
 		
 		
 		
