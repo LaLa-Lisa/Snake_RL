@@ -30,6 +30,7 @@ public:
 
 	//заполняет гены случайными числами 
 	void rand_population();
+	void rand_population_uniform();
 	void rand_population_normal();
 
 	//заполнеят гены случаными перестановками чисел от 1 до n

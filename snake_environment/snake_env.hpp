@@ -168,19 +168,19 @@ public:
 		double s_tail_3 = NON;
 		double s_tail_4 = NON;
 		for (int i = 0; i < Tail.size(); ++i) {
-			if (Head.X == Tail[i].X) 
-				(Head.Y > Tail[i].Y) 
-				? 
-				s_tail_2 = s_tail_2 == NON ? Head.Y - Tail[i].Y - 1 : min(s_tail_2, Head.Y - Tail[i].Y - 1)
+			if (Head.X == Tail[i].X)
+				(Head.Y > Tail[i].Y)
+				?
+				s_tail_2 = 1
 				: 
-				s_tail_4 = s_tail_4 == NON ? Tail[i].Y - Head.Y - 1 : min(s_tail_4, Tail[i].Y - Head.Y - 1);
+				s_tail_4 = 1;
 
 			if (Head.Y == Tail[i].Y) 
 				(Head.X > Tail[i].X) 
 				? 
-				s_tail_1 = s_tail_1 == NON ? Head.X - Tail[i].X - 1 : min(s_tail_1, Head.X - Tail[i].X - 1)
+				s_tail_1 = 1
 				: 
-				s_tail_3 = s_tail_3 == NON ? Tail[i].X - Head.X - 1 : min(s_tail_3 , Tail[i].X - Head.X - 1);
+				s_tail_3 = 1;
 		}
 		double s_diag_tail_1 = NON;
 		double s_diag_tail_2 = NON;
@@ -249,11 +249,17 @@ public:
 			s_diag_fruit_1, s_diag_fruit_2, s_diag_fruit_3, s_diag_fruit_4
 		};
 
-		for (int i = 0; i < ans.size(); i++) {
+		for (int i = 0; i < 8; i++) {
 			if (ans[i] == NON)
 				ans[i] = 0;
 			else
 				ans[i] = 1.0 / (ans[i] + 1);
+		}
+		for (int i = 8; i < ans.size(); i++) {
+			if (ans[i] == NON)
+				ans[i] = 0;
+			else
+				ans[i] = 1.0;
 		}
 		
 		

@@ -41,7 +41,7 @@ void LGenetic::learn(int generationsNum) {
 		current_iteration = t;
 		sort();
 		std::cout << t << " - " << fitness_function(b_gene) << " | " << loss(b_gene, file_validation) << "\n";
-		if (t % 500) {
+		if (t % 50) {
 			std::ofstream f("best_latest_.txt");
 			for (auto& i : pop[0])
 				f << i << ' ';
@@ -166,6 +166,15 @@ void LGenetic::rand_population() {
 	for(auto& i : pop)
 		for (auto& j : i)
 			j = (double)(distribution(generator)) / 100 - 0.5;
+}
+void LGenetic::rand_population_uniform() {
+	//std::random_device rd;
+	//std::mt19937 e2(rd());
+	std::default_random_engine generator;
+	std::uniform_real_distribution<double> distribution(-1, 1);
+	for (auto& i : pop)
+		for (auto& j : i)
+			j = distribution(generator);
 }
 void LGenetic::rand_population_normal() {
 	srand(time(0));
@@ -403,13 +412,22 @@ void LGenetic::mutationP(std::vector<double>& x) {
 }
 
 void LGenetic::mutationA(std::vector<double>& x) {
+	double upper_bound = 1;
+	double lower_bound = -1;
+	std::random_device rd;
+	std::mt19937 e2(rd());
+	std::normal_distribution<> dist(0, 1);
+	//double mut = dist(e2);
+
 	int num = rand() % (pop[0].size() / 5);
 	double mut = (double)(rand() % 1500) / 1000;
 	if (rand() % 2)
 		mut *= -1;
 	for (int i = 0; i < num; i++) {
 		int j = rand() % pop[0].size();
-		x[j] += mut;
+		x[j] += dist(e2) * 0.2;
+		/*x[j] = std::max(upper_bound, x[j]);
+		x[j] = std::min(lower_bound, x[j]);*/
 	}
 }
 void LGenetic::mutationAA(std::vector<double>& x, int genNum) {

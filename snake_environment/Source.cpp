@@ -29,7 +29,7 @@ const NeuralN g_MyNet({ (int)g_Env.observe_hard().size(), 20, 12, 4 }, { activat
 
 
 double fitness(const std::vector<double>& x) {
-	srand(0);
+	//srand(0);
 	auto local_Net = g_MyNet;
 	local_Net.read_weitghs(x);
 
@@ -45,10 +45,10 @@ double fitness(const std::vector<double>& x) {
 
 double fitness_x10(const std::vector<double>& x) {
 	double res = 0;
-	for (int i = 0; i < 1; ++i) {
+	for (int i = 0; i < 10; ++i) {
 		res += fitness(x);
 	}
-	return res / 1;
+	return res / 10;
 }
 
 double loss(std::vector<double>& x, std::string s) {
@@ -58,10 +58,12 @@ double loss(std::vector<double>& x, std::string s) {
 }
 
 double show(const std::vector<double>& x) {
-	srand(0);
+	srand(02);
 	auto local_Net = g_MyNet;
 	local_Net.read_weitghs(x);
 	local_Net.write_weitghs("best.txt");
+	/*auto a = std::ifstream("best.txt");
+	local_Net.read_weitghs(a);*/
 
 	snake_env Env = g_Env;
 	system("cls");
@@ -90,8 +92,8 @@ double show(const std::vector<double>& x) {
 }
 
 int main() {
-	LGenetic model(500, g_MyNet.paramsNumber(), fitness_x10);
-	model.rand_population_normal();
+	LGenetic model(2000, g_MyNet.paramsNumber(), fitness_x10);
+	model.rand_population_uniform();
 	model.set_crossover(LGenetic::SPBX);
 	model.set_mutation(LGenetic::AM);
 	model.set_loss(loss);
