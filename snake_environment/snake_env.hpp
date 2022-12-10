@@ -188,8 +188,13 @@ public:
 		return ans;
 	}
 
-	std::vector<double> observe2() {
-
+	std::vector<double> observe2() const {
+		std::vector<double> angles = { PI / 4, 3 * PI / 4 };
+		std::vector<double> sensors(angles.size() * 2);
+		for (auto& i : Tail) {
+			check_sensors(Head, i, sensors, angles);
+		}
+		return sensors;
 	}
 	bool is_done() const {
 		return gameOver;
@@ -353,55 +358,57 @@ private:
 		}
 	}
 
-	constexpr bool is_under_line(const int k, const int b, const int x, const int y) {
-		return k * x + b > y;
+	bool is_under_line(const int k, const int b, const Scoord& Dot) const {
+		return k * Dot.X + b > Dot.Y;
 	}
-	constexpr bool is_cross(const int k, const int b, const int x, const int y) {
-		bool UL = is_under_line(k, b, x, y);
-		bool UR = is_under_line(k, b, x + 1, y);
-		bool DL = is_under_line(k, b, x, y + 1);
-		bool DR = is_under_line(k, b, x + 1, y + 1);
+	bool is_cross(const int k, const int b, const Scoord& Dot) const {
+		bool UL = is_under_line(k, b, Dot);
+		bool UR = is_under_line(k, b, Scoord(Dot.X + 1, Dot.Y));
+		bool DL = is_under_line(k, b, Scoord(Dot.X, Dot.Y + 1));
+		bool DR = is_under_line(k, b, Scoord(Dot.X + 1, Dot.Y + 1));
 		return !((UL == UR) && (UR == DL) && (DL == DR));
 	}
-	constexpr double distance(const int x1, const int y1, const int x2, const int y2) {
-		return sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+	double distance(const Scoord& Dot1, const Scoord& Dot2) const {
+		return sqrt((Dot1.X - Dot2.X) * (Dot1.X - Dot2.X) + (Dot1.Y - Dot2.Y) * (Dot1.Y - Dot2.Y));
 	}
-	std::pair<double, double> sensor(const int x0, const int y0, const int x, const int y, const int alpha) {
+	std::pair<double, double> sensor(const Scoord& Start, const Scoord& Dot, const int alpha) const {
 		double k = tan(alpha);
-		double c_x = (double)x0 + 1 / 2;
-		double c_y = (double)y0 + 1 / 2;
+		double c_x = (double)Start.X + 1 / 2;
+		double c_y = (double)Start.Y + 1 / 2;
 		double b = c_y - k * c_x;
 
 		double obs = 0;
-		if (!is_cross(k, b, x, y)) {
-			obs = distance(c_x, c_y, x + 1 / 2, y + 1 / 2);
+		if (!is_cross(k, b, Dot)) {
+			obs = distance(Scoord(c_x, c_y), Scoord(Dot.X + 1 / 2, Dot.Y + 1 / 2));
 		}
 		if (alpha > PI / 4 && alpha < 3 * PI / 4) {
-			if (c_y < y + 1 / 2)
+			if (c_y < Dot.Y + 1 / 2)
 				return std::make_pair(0, obs);
 			else
 				return std::make_pair(obs, 0);
 		}
 		else {
-			if (c_y < y + 1 / 2)
+			if (c_x < Dot.X + 1 / 2)
 				return std::make_pair(0, obs);
 			else
 				return std::make_pair(obs, 0);
 		}
 		return std::make_pair(0, 0);
 	}
-	void check_sensors(const int x, const int y, std::vector<double> sens_data, std::vector<double> sens_angles) {
-		/*if (sens_data.size() != 2 * sens_angles.size()) throw;
-		for (int i = 0; i < sens_agles.size(); ++i) {
-			std::pair<double, double> obs = sensor(x, y, sens_angles[i])
+	void check_sensors(const Scoord& Start, const Scoord& Dot, std::vector<double>& sens_data, std::vector<double>& sens_angles) const {
+		bool binary = true;
+		if (sens_data.size() != 2 * sens_angles.size()) throw;
+		for (int i = 0; i < sens_angles.size(); ++i) {
+			std::pair<double, double> obs = sensor(Start, Dot, sens_angles[i]);
+			if (binary) {
+				if (obs.first) sens_data[2 * i] = 1;
+				if (obs.second) sens_data[2 * i + 1] = 1;
+			}
+			else {
+				if (obs.first) sens_data[2 * i] = max(sens_data[2 * i], obs.first);
+				if (obs.second) sens_data[2 * i + 1] = max(sens_data[2 * i + 1], obs.second);
+			}
 		}
-			a, b = sensor(obj, sens_angle[i])
-			if binary :
-				if a : sens_data[2 * i] = 1
-					if b : sens_data[2 * i + 1] = 1
-					else :
-						if a : sens_data[2 * i] = max(sens_data[2 * i], a)
-							if b : sens_data[2 * i + 1] = max(sens_data[2 * i + 1], b)*/
 	}
 };
 
