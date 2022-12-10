@@ -408,7 +408,7 @@ void LGenetic::mutationA(std::vector<double>& x) {
 		mut *= -1;
 	for (int i = 0; i < num; i++) {
 		int j = rand() % pop[0].size();
-		x[j] += mut;
+		x[j] *= mut;
 	}
 }
 void LGenetic::mutationAA(std::vector<double>& x, int genNum) {
