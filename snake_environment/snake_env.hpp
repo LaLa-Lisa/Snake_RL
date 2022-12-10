@@ -13,9 +13,15 @@ public:
 	Scoord() : X(-1), Y(-1) {}
 	Scoord(int _x, int _y) : X(_x), Y(_y) {}
 	bool operator==(const Scoord& right) const { return X == right.X && Y == right.Y;  }
-	Scoord& operator=(Scoord& right)
+	/*Scoord& operator=(Scoord& right)
 	{
 		X = right.X; 
+		Y = right.Y;
+		return *this;
+	}*/
+	Scoord& operator=(Scoord right)
+	{
+		X = right.X;
 		Y = right.Y;
 		return *this;
 	}
@@ -65,6 +71,10 @@ public:
 		for (auto& i : Tail) std::cout << i.X << " ";
 		std::cout << std::endl << "TailY: ";
 		for (auto& i : Tail) std::cout << i.Y << " ";
+		std::cout << std::endl;
+
+		std::cout << "obs2: ";
+		for (auto& i : observe2()) std::cout << i << " ";
 		std::cout << std::endl;
 
 	}
@@ -144,6 +154,7 @@ public:
 		return ans;
 	}
 	std::vector<double> observe_hard() const {
+		double NON = -1;
 		double s_wall_1 = Head.X;
 		double s_wall_2 = Head.Y;
 		double s_wall_3 = heght - Head.X - 1.0;
@@ -152,25 +163,36 @@ public:
 		double s_diag_wall_2 = min(s_wall_2, s_wall_3);
 		double s_diag_wall_3 = min(s_wall_3, s_wall_4);
 		double s_diag_wall_4 = min(s_wall_4, s_wall_1);
-		double s_tail_1 = -1;
-		double s_tail_2 = -1;
-		double s_tail_3 = -1;
-		double s_tail_4 = -1;
+		double s_tail_1 = NON;
+		double s_tail_2 = NON;
+		double s_tail_3 = NON;
+		double s_tail_4 = NON;
 		for (int i = 0; i < Tail.size(); ++i) {
-			if (Head.X == Tail[i].X) (Head.Y > Tail[i].Y) ? s_tail_2 = min(max(s_tail_2, s_wall_2), Head.Y - Tail[i].Y - 1) : s_tail_4 = min(max(s_tail_4, s_wall_4), Tail[i].Y - Head.Y - 1);
-			if (Head.Y == Tail[i].Y) (Head.X > Tail[i].X) ? s_tail_1 = min(max(s_tail_1, s_wall_1), Head.X - Tail[i].X - 1) : s_tail_3 = min(max(s_tail_3, s_wall_3), Tail[i].X - Head.X - 1);
+			if (Head.X == Tail[i].X) 
+				(Head.Y > Tail[i].Y) 
+				? 
+				s_tail_2 = s_tail_2 == NON ? Head.Y - Tail[i].Y - 1 : min(s_tail_2, Head.Y - Tail[i].Y - 1)
+				: 
+				s_tail_4 = s_tail_4 == NON ? Tail[i].Y - Head.Y - 1 : min(s_tail_4, Tail[i].Y - Head.Y - 1);
+
+			if (Head.Y == Tail[i].Y) 
+				(Head.X > Tail[i].X) 
+				? 
+				s_tail_1 = s_tail_1 == NON ? Head.X - Tail[i].X - 1 : min(s_tail_1, Head.X - Tail[i].X - 1)
+				: 
+				s_tail_3 = s_tail_3 == NON ? Tail[i].X - Head.X - 1 : min(s_tail_3 , Tail[i].X - Head.X - 1);
 		}
-		double s_diag_tail_1 = -1;
-		double s_diag_tail_2 = -1;
-		double s_diag_tail_3 = -1;
-		double s_diag_tail_4 = -1;
-		double s_diag_fruit_1 = -1;
-		double s_diag_fruit_2 = -1;
-		double s_diag_fruit_3 = -1;
-		double s_diag_fruit_4 = -1;
-		for (int i = 0; i < min(s_wall_1, s_wall_2); ++i) {
-			if (s_diag_tail_1 == -1 && is_tail(Scoord(Head.X - i, Head.Y - i))) {
-				s_diag_tail_1 = i;
+		double s_diag_tail_1 = NON;
+		double s_diag_tail_2 = NON;
+		double s_diag_tail_3 = NON;
+		double s_diag_tail_4 = NON;
+		double s_diag_fruit_1 = NON;
+		double s_diag_fruit_2 = NON;
+		double s_diag_fruit_3 = NON;
+		double s_diag_fruit_4 = NON;
+		for (int i = 0; i <= min(s_wall_1, s_wall_2); ++i) {
+			if (s_diag_tail_1 == NON && is_tail(Scoord(Head.X - i, Head.Y - i))) {
+				s_diag_tail_1 = i - 1;
 				//break;
 			}
 			if (Head.X - i == Frut.X && Head.Y - i == Frut.Y) {
@@ -178,9 +200,9 @@ public:
 			}
 		}
 
-		for (int i = 0; i < min(s_wall_2, s_wall_3); ++i) {
-			if (s_diag_tail_2 == -1 && is_tail(Scoord(Head.X + i, Head.Y - i))) {
-				s_diag_tail_2 = i;
+		for (int i = 0; i <= min(s_wall_2, s_wall_3); ++i) {
+			if (s_diag_tail_2 == NON && is_tail(Scoord(Head.X + i, Head.Y - i))) {
+				s_diag_tail_2 = i - 1;
 				//break;
 			}
 			if (Head.X + i == Frut.X && Head.Y - i == Frut.Y) {
@@ -188,134 +210,53 @@ public:
 			}
 		}
 
-		for (int i = 0; i < min(s_wall_3, s_wall_4); ++i) {
-			if (s_diag_tail_3 == -1 && is_tail(Scoord(Head.X + i, Head.Y + i))) {
-				s_diag_tail_3 = i;
+		for (int i = 0; i <= min(s_wall_3, s_wall_4); ++i) {
+			if (s_diag_tail_3 == NON && is_tail(Scoord(Head.X + i, Head.Y + i))) {
+				s_diag_tail_3 = i - 1;
 				//break;
 			}
 			if (Head.X + i == Frut.X && Head.Y + i == Frut.Y) {
 				s_diag_fruit_3 = i - 1;
 			}
 		}
-		for (int i = 0; i < min(s_wall_4, s_wall_1); ++i) {
-			if (s_diag_tail_4 == -1 && is_tail(Scoord(Head.X - i, Head.Y + i))) {
-				s_diag_tail_4 = i;
+		for (int i = 0; i <= min(s_wall_4, s_wall_1); ++i) {
+			if (s_diag_tail_4 == NON && is_tail(Scoord(Head.X - i, Head.Y + i))) {
+				s_diag_tail_4 = i - 1;
 				//break;
 			}
 			if (Head.X - i == Frut.X && Head.Y + i == Frut.Y) {
-				s_diag_fruit_4 = i -1;
+				s_diag_fruit_4 = i - 1;
 			}
 		}
 
 
 
-		double s_fruit_1 = -1;
-		double s_fruit_2 = -1;
-		double s_fruit_3 = -1;
-		double s_fruit_4 = -1;
+		double s_fruit_1 = NON;
+		double s_fruit_2 = NON;
+		double s_fruit_3 = NON;
+		double s_fruit_4 = NON;
 		if (Head.X == Frut.X) (Head.Y > Frut.Y) ? s_fruit_2 = Head.Y - Frut.Y - 1 : s_fruit_4 = Frut.Y - Head.Y - 1;
 		if (Head.Y == Frut.Y) (Head.X > Frut.X) ? s_fruit_1 = Head.X - Frut.X - 1 : s_fruit_3 = Frut.X - Head.X - 1;
 
 		
 		std::vector<double> ans;
-		/*ans = {
+		ans = {
 			s_wall_1, s_wall_2, s_wall_3, s_wall_4,
 			s_diag_wall_1, s_diag_wall_2, s_diag_wall_3, s_diag_wall_4,
 			s_tail_1, s_tail_2, s_tail_3, s_tail_4,
 			s_diag_tail_1, s_diag_tail_2, s_diag_tail_3, s_diag_tail_4,
 			s_fruit_1, s_fruit_2, s_fruit_3, s_fruit_4,
 			s_diag_fruit_1, s_diag_fruit_2, s_diag_fruit_3, s_diag_fruit_4
-		};*/
+		};
 		
-		switch (dir)
-		{
-		case UP:
-			ans = {
-				s_wall_1, s_wall_2, s_wall_3, s_wall_4,
-				s_diag_wall_1, s_diag_wall_2, s_diag_wall_3, s_diag_wall_4,
-				s_tail_1, s_tail_2, s_tail_3, s_tail_4,
-				s_diag_tail_1, s_diag_tail_2, s_diag_tail_3, s_diag_tail_4,
-				s_fruit_1, s_fruit_2, s_fruit_3, s_fruit_4,
-				s_diag_fruit_1, s_diag_fruit_2, s_diag_fruit_3, s_diag_fruit_4
-			};
-			break;
-		case RIGHT:
-			ans = {
-				s_wall_2, s_wall_3, s_wall_4, s_wall_1,
-				s_diag_wall_2, s_diag_wall_3, s_diag_wall_4, s_diag_wall_1,
-				s_tail_2, s_tail_3, s_tail_4, s_tail_1,
-				s_diag_tail_2, s_diag_tail_3, s_diag_tail_4, s_diag_tail_1,
-				s_fruit_2, s_fruit_3, s_fruit_4, s_fruit_1,
-				s_diag_fruit_2, s_diag_fruit_3, s_diag_fruit_4, s_diag_fruit_1
-			};
-			break;
-		case LEFT:
-			ans = {
-				s_wall_4, s_wall_1, s_wall_2, s_wall_3,
-				s_diag_wall_4, s_diag_wall_1, s_diag_wall_2, s_diag_wall_3,
-				s_tail_4, s_tail_1, s_tail_2, s_tail_3,
-				s_diag_tail_4, s_diag_tail_1, s_diag_tail_2, s_diag_tail_3,
-				s_fruit_4, s_fruit_1, s_fruit_2, s_fruit_3,
-				s_diag_fruit_4, s_diag_fruit_1, s_diag_fruit_2, s_diag_fruit_3
-			};
-			break;
-		case DOWN:
-			ans = {
-				s_wall_3, s_wall_4, s_wall_1, s_wall_2,
-				s_diag_wall_3, s_diag_wall_4, s_diag_wall_1, s_diag_wall_2,
-				s_tail_3, s_tail_4, s_tail_1, s_tail_2,
-				s_diag_tail_3, s_diag_tail_4, s_diag_tail_1, s_diag_tail_2,
-				s_fruit_3, s_fruit_4, s_fruit_1, s_fruit_2,
-				s_diag_fruit_3, s_diag_fruit_4, s_diag_fruit_1, s_diag_fruit_2
-			};
-			break;
-		}
-		/*switch (dir)
-		{
-		case UP:
-			ans = {
-				s_wall_1, s_wall_2, s_wall_3, s_wall_4,
-				s_diag_wall_1, s_diag_wall_2, s_diag_wall_3, s_diag_wall_4,
-				s_tail_1, s_tail_2, s_tail_3, s_tail_4,
-				s_diag_tail_1, s_diag_tail_2, s_diag_tail_3, s_diag_tail_4,
-				s_fruit_1, s_fruit_2, s_fruit_3, s_fruit_4,
-				s_diag_fruit_1, s_diag_fruit_2, s_diag_fruit_3, s_diag_fruit_4
-			};
-			break;
-		case RIGHT:
-			ans = {
-				s_wall_4, s_wall_1, s_wall_2, s_wall_3,
-				s_diag_wall_4, s_diag_wall_1, s_diag_wall_2, s_diag_wall_3,
-				s_tail_4, s_tail_1, s_tail_2, s_tail_3,
-				s_diag_tail_4, s_diag_tail_1, s_diag_tail_2, s_diag_tail_3,
-				s_fruit_4, s_fruit_1, s_fruit_2, s_fruit_3,
-				s_diag_fruit_4, s_diag_fruit_1, s_diag_fruit_2, s_diag_fruit_3
-			};
-			break;
-		case LEFT:
-			ans = {
-				s_wall_2, s_wall_3, s_wall_4, s_wall_1,
-				s_diag_wall_2, s_diag_wall_3, s_diag_wall_4, s_diag_wall_1,
-				s_tail_2, s_tail_3, s_tail_4, s_tail_1,
-				s_diag_tail_2, s_diag_tail_3, s_diag_tail_4, s_diag_tail_1,
-				s_fruit_2, s_fruit_3, s_fruit_4, s_fruit_1,
-				s_diag_fruit_2, s_diag_fruit_3, s_diag_fruit_4, s_diag_fruit_1
-			};
-			break;
-		case DOWN:
-			ans = {
-				s_wall_3, s_wall_4, s_wall_1, s_wall_2,
-				s_diag_wall_3, s_diag_wall_4, s_diag_wall_1, s_diag_wall_2,
-				s_tail_3, s_tail_4, s_tail_1, s_tail_2,
-				s_diag_tail_3, s_diag_tail_4, s_diag_tail_1, s_diag_tail_2,
-				s_fruit_3, s_fruit_4, s_fruit_1, s_fruit_2,
-				s_diag_fruit_3, s_diag_fruit_4, s_diag_fruit_1, s_diag_fruit_2
-			};
-			break;
-		}*/
+		
+		
 		//ans.push_back((double)tailN);
 		for (auto& i : direction_output()) {
-			ans.push_back((double)i);
+			ans.push_back(i);
+		}
+		for (auto& i : tail_direction()) {
+			ans.push_back(i);
 		}
 		return ans;
 	}
@@ -382,7 +323,7 @@ public:
 		return Tail.size();
 	}
 	double reward() const {
-		return score;
+		return step_counter + (pow(2, score) + 500 * pow(score, 2.1)) - (pow(0.25 * step_counter, 1.3) * pow(score, 1.2));
 	}
 	int steps_without_fruit() const {
 		return this->steps_without_frut;
@@ -406,7 +347,7 @@ public:
 		}
 		return "STOP";
 	}
-	std::vector<int> direction_output() const {
+	std::vector<double> direction_output() const {
 		switch (dir)
 		{
 		case UP:
@@ -421,6 +362,40 @@ public:
 		case DOWN:
 			return { 0, 0, 0, 1 };
 			break;
+		}
+		return { 0, 0, 0, 0 };
+	}
+	std::vector<double> tail_direction() const {
+		if (!Tail.size()) return { 0, 0, 0, 0 };
+		Scoord pred_last;
+		Scoord last;
+		if (Tail.size() == 1) {
+			pred_last = Head;
+			last = Tail[0];
+		}
+		else {
+			pred_last = Tail.end()[-2];
+			last = Tail.end()[-1];
+		}
+
+
+		if (pred_last.X != last.X && pred_last.Y != last.Y) throw;
+		if (pred_last.X == last.X && pred_last.Y == last.Y) throw;
+		if (pred_last.X == last.X) {
+			if (pred_last.Y > last.Y) {
+				return { 0, 0, 0, 1 };
+			}
+			else {
+				return { 1, 0, 0, 0 };
+			}
+		}
+		else {
+			if (pred_last.X > last.X) {
+				return { 0, 1, 0, 0 };
+			}
+			else {
+				return { 0, 0, 1, 0 };
+			}
 		}
 		return { 0, 0, 0, 0 };
 	}
@@ -443,27 +418,19 @@ private:
 	int steps_without_frut = 0;
 
 	mDirection Input(const int way) {
-		switch (dir)
+		switch (way)
 		{
-		case UP:
-			if (way == 0) dir = UP;
-			if (way == 1) dir = LEFT;
-			if (way == 2) dir = RIGHT;
+		case 0:
+			if (dir != DOWN) dir = UP;
 			break;
-		case DOWN:
-			if (way == 0) dir = DOWN;
-			if (way == 1) dir = RIGHT;
-			if (way == 2) dir = LEFT;
+		case 1:
+			if (dir != UP) dir = DOWN;
 			break;
-		case LEFT:
-			if (way == 0) dir = LEFT;
-			if (way == 1) dir = DOWN;
-			if (way == 2) dir = UP;
+		case 2:
+			if (dir != RIGHT) dir = LEFT;
 			break;
-		case RIGHT:
-			if (way == 0) dir = RIGHT;
-			if (way == 1) dir = UP;
-			if (way == 2) dir = DOWN;
+		case 3:
+			if (dir != LEFT) dir = RIGHT;
 			break;
 		default:
 			break;
