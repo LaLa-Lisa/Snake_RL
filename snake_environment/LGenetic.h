@@ -54,6 +54,9 @@ public:
 	
 	//
 	void make_test(std::string file_name, int itarations, int repeat_times, std::vector<std::vector<std::vector<double>>>& init_pop);
+
+	//show learning results
+	void show_plt_avarage();
 private:
 	std::vector<std::vector<double>> pop;
 	std::vector<double> b_gene;
@@ -89,4 +92,7 @@ private:
 
 
 	std::function<double(std::vector<double>&, std::string)> loss;
+
+	//plotting staff
+	std::vector<double> avarage_fitness;
 };

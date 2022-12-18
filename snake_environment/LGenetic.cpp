@@ -1,3 +1,4 @@
+#define _USE_MATH_DEFINES
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -7,6 +8,8 @@
 #include <functional>
 #include <set>
 #include <thread>
+#include "matplotlibcpp.h"
+#include <cmath>
 
 #include"LGenetic.h"
 
@@ -38,6 +41,7 @@ void LGenetic::learn(int generationsNum) {
 	max_iteration = generationsNum;
 	for (int t = 0; t < generationsNum; ++t)
 	{
+		avarage_fitness.push_back(abs(fitness_function(b_gene)));
 		current_iteration = t;
 		sort();
 		std::cout << t << " - " << fitness_function(b_gene) << " | " << loss(b_gene, file_validation) << "\n";
@@ -119,7 +123,6 @@ void LGenetic::set_selection(Selection _selection) {
 		break;
 	}
 }
-
 //задание мутации
 void LGenetic::set_mutation(Mutation _mutation) {
 	switch (_mutation)
@@ -666,4 +669,22 @@ void LGenetic::doPart(int from, int to, std::vector<double>& output) {
 	for (int i = from; i < to; ++i) {
 		output[i] = fitness_function(pop[i]);
 	}
+}
+
+//show learning results
+void LGenetic::show_plt_avarage() {
+	std::vector<double> x;
+	for (int i = 0; i < avarage_fitness.size(); ++i) x.push_back(static_cast<double>(i));
+	for (auto& i : avarage_fitness) std::cout << i << ' ';
+	std::cout << '\n';
+	// Clear previous plot
+	matplotlibcpp::clf();
+	// Plot a line whose name will show up as "log(x)" in the legend.
+	matplotlibcpp::plot(x, avarage_fitness, { {"label", "fitness"} });
+	// Add graph title
+	matplotlibcpp::title("Sample figure");
+	// Enable legend.
+	matplotlibcpp::legend();
+	matplotlibcpp::show();
+	std::cout << "avarage fitness plot was shown\n";
 }

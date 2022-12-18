@@ -18,7 +18,7 @@ int arg_min(std::vector<T, A> const& vec) {
 	return static_cast<int>(std::distance(vec.begin(), min_element(vec.begin(), vec.end())));
 }
 
-const int g_N = 20;
+const int g_N = 10;
 const snake_env g_Env(g_N, g_N);
 const NeuralN g_MyNet(
 					{ (int)g_Env.observe_hard().size(), 20, 12, 4 }, 
@@ -43,7 +43,7 @@ double fitness(const std::vector<double>& x) {
 }
 
 double fitness_n_times(const std::vector<double>& x) {
-	const int n = 20;
+	const int n = 10;
 	double res = 0;
 	for (int i = 0; i < n; ++i) {
 		res += fitness(x);
@@ -97,12 +97,13 @@ int main() {
 	model.set_crossover(LGenetic::SPBX);
 	model.set_mutation(LGenetic::AM);
 	model.set_loss(loss);
-	model.learn(2);
+	model.learn(1500);
+	model.show_plt_avarage();
 	auto best = model.best_gene();
 
-	std::ifstream fin("best.txt");
+	/*std::ifstream fin("best.txt");
 	for (int i = 0; i < g_MyNet.paramsNumber(); ++i) 
-		fin >> best[i];
+		fin >> best[i];*/
 	
 	while (true) {
 		int a;
