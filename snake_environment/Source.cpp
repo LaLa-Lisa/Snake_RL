@@ -8,23 +8,22 @@
 
 
 
-int argmax(const std::vector<double>& v) {
-	double m = -99999999;
-	int res = -1;
-	for (int i = 0; i < v.size(); ++i) {
-		if (v[i] > m) {
-			m = v[i];
-			res = i;
-		}
-	}
-	if (res == -1)
-		throw "";
-	return res;
+template <typename T, typename A>
+int arg_max(std::vector<T, A> const& vec) {
+	return static_cast<int>(std::distance(vec.begin(), max_element(vec.begin(), vec.end())));
 }
 
-const int g_N = 5;
+template <typename T, typename A>
+int arg_min(std::vector<T, A> const& vec) {
+	return static_cast<int>(std::distance(vec.begin(), min_element(vec.begin(), vec.end())));
+}
+
+const int g_N = 20;
 const snake_env g_Env(g_N, g_N);
-const NeuralN g_MyNet({ (int)g_Env.observe_hard().size(), 20, 12, 4 }, { activation_type::RELU, activation_type::RELU, activation_type::RELU });
+const NeuralN g_MyNet(
+					{ (int)g_Env.observe_hard().size(), 20, 12, 4 }, 
+					{ activation_type::RELU, activation_type::RELU, activation_type::RELU }
+					  );
 
 
 
@@ -38,17 +37,18 @@ double fitness(const std::vector<double>& x) {
 	while (!Env.is_done()) {
 		auto res = local_Net.forward(Env.observe_hard());
 
-		Env.step(argmax(res));
+		Env.step(arg_max(res));
 	}
 	return -Env.snake_len();
 }
 
-double fitness_x10(const std::vector<double>& x) {
+double fitness_n_times(const std::vector<double>& x) {
+	const int n = 20;
 	double res = 0;
-	for (int i = 0; i < 10; ++i) {
+	for (int i = 0; i < n; ++i) {
 		res += fitness(x);
 	}
-	return res / 10;
+	return res / n;
 }
 
 double loss(std::vector<double>& x, std::string s) {
@@ -58,7 +58,7 @@ double loss(std::vector<double>& x, std::string s) {
 }
 
 double show(const std::vector<double>& x) {
-	srand(02);
+	srand(10);
 	auto local_Net = g_MyNet;
 	local_Net.read_weitghs(x);
 	local_Net.write_weitghs("best.txt");
@@ -70,7 +70,7 @@ double show(const std::vector<double>& x) {
 	while (!Env.is_done()) {
 		auto res = local_Net.forward(Env.observe_hard());
 
-		Env.step(argmax(res));
+		Env.step(arg_max(res));
 
 		Env.console_render();
 		int ii = 0;
@@ -85,20 +85,24 @@ double show(const std::vector<double>& x) {
 			}
 		}
 
-		Sleep(100);
+		//Sleep(100);
 	}
 	
 	return Env.snake_len();
 }
 
 int main() {
-	LGenetic model(2000, g_MyNet.paramsNumber(), fitness_x10);
+	LGenetic model(2000, g_MyNet.paramsNumber(), fitness_n_times);
 	model.rand_population_uniform();
 	model.set_crossover(LGenetic::SPBX);
 	model.set_mutation(LGenetic::AM);
 	model.set_loss(loss);
-	model.learn(2000);
+	model.learn(2);
 	auto best = model.best_gene();
+
+	std::ifstream fin("best.txt");
+	for (int i = 0; i < g_MyNet.paramsNumber(); ++i) 
+		fin >> best[i];
 	
 	while (true) {
 		int a;

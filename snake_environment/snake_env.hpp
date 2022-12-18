@@ -163,25 +163,32 @@ public:
 		double s_diag_wall_2 = min(s_wall_2, s_wall_3);
 		double s_diag_wall_3 = min(s_wall_3, s_wall_4);
 		double s_diag_wall_4 = min(s_wall_4, s_wall_1);
-		double s_tail_1 = NON;
-		double s_tail_2 = NON;
-		double s_tail_3 = NON;
-		double s_tail_4 = NON;
+
+		double tempNON = 1000;
+		double s_tail_1 = tempNON;
+		double s_tail_2 = tempNON;
+		double s_tail_3 = tempNON;
+		double s_tail_4 = tempNON;
 		for (int i = 0; i < Tail.size(); ++i) {
 			if (Head.X == Tail[i].X)
 				(Head.Y > Tail[i].Y)
 				?
-				s_tail_2 = 1
+				s_tail_2 = min(s_tail_2, abs(Head.Y - Tail[i].Y) - 1)
 				: 
-				s_tail_4 = 1;
+				s_tail_4 = min(s_tail_4, abs(Head.Y - Tail[i].Y) - 1);
 
 			if (Head.Y == Tail[i].Y) 
 				(Head.X > Tail[i].X) 
 				? 
-				s_tail_1 = 1
+				s_tail_1 = min(s_tail_1, abs(Head.X - Tail[i].X) - 1)
 				: 
-				s_tail_3 = 1;
+				s_tail_3 = min(s_tail_3, abs(Head.X - Tail[i].X) - 1);
 		}
+		if (s_tail_1 == tempNON) s_tail_1 = NON;
+		if (s_tail_2 == tempNON) s_tail_2 = NON;
+		if (s_tail_3 == tempNON) s_tail_3 = NON;
+		if (s_tail_4 == tempNON) s_tail_4 = NON;
+
 		double s_diag_tail_1 = NON;
 		double s_diag_tail_2 = NON;
 		double s_diag_tail_3 = NON;
@@ -249,13 +256,13 @@ public:
 			s_diag_fruit_1, s_diag_fruit_2, s_diag_fruit_3, s_diag_fruit_4
 		};
 
-		for (int i = 0; i < 8; i++) {
+		for (int i = 0; i < 12; i++) {
 			if (ans[i] == NON)
 				ans[i] = 0;
 			else
 				ans[i] = 1.0 / (ans[i] + 1);
 		}
-		for (int i = 8; i < ans.size(); i++) {
+		for (int i = 12; i < ans.size(); ++i) {
 			if (ans[i] == NON)
 				ans[i] = 0;
 			else
