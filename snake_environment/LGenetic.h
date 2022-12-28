@@ -54,8 +54,9 @@ public:
 	
 	//
 	void make_test(std::string file_name, int itarations, int repeat_times, std::vector<std::vector<std::vector<double>>>& init_pop);
-private:
+
 	std::vector<std::vector<double>> pop;
+private:
 	std::vector<double> b_gene;
 
 	int current_iteration;

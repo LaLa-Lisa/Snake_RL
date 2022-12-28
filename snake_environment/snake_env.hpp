@@ -348,6 +348,9 @@ public:
 	int steps_without_fruit() const {
 		return this->steps_without_frut;
 	}
+	int score_() const {
+		return score;
+	}
 
 	std::string direction() const {
 		switch (dir)

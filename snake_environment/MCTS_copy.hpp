@@ -11,7 +11,7 @@ class IEnviroment
 public:
 	virtual void step(const int action) = 0;  // совершает шаг по номеру действия из actions_number
 	virtual int actions_number() const = 0;  // возращает количество возможных действий в текущей ситуации
-	virtual double evaluate(const int action) const = 0;  // возращает оценку текущей ситуации
+	virtual std::pair<double, std::vector<int>> evaluate(const int action) const = 0;  // возращает оценку текущей ситуации и ветвление
 	virtual std::shared_ptr<IEnviroment> clone() const = 0;  // 
 };
 
@@ -21,6 +21,7 @@ public:
 	const int id = -1;
 	const int parent = -1;
 	std::vector<int> succ;
+	std::vector<int> actions_succ;
 
 	double Q = 0;
 	int visits = 0;
@@ -57,7 +58,7 @@ public:
 
 
 private:
-	const double C = 0;
+	const double C = 0.5;
 };
 
 
@@ -93,6 +94,9 @@ public:
 	const int max_deep;
 	MCTS(const int _max_deep, IEnviroment& _base_env, const int C = 0) : max_deep(_max_deep), base_env(_base_env) {
 		TREE.addNode(Node(0, -1, -1, base_env));  // id 0 and -1 is parent
+		auto val = TREE[0].env->evaluate(TREE[0].action);
+		TREE[0].actions_succ = val.second;
+		TREE[0].Q = val.first;
 	}
 
 	std::vector<std::tuple<int, double, int>> run() {
@@ -139,11 +143,14 @@ private:
 	void expand(const int node_id) {
 		Node& cur_node = TREE[node_id];
 		
-		for (int i = 0; i < cur_node.env->actions_number(); ++i) {
+		for (int i = 0; i < cur_node.actions_succ.size(); ++i) {
 			int new_id = nodes_count(); // got new id (size is 1 more than max id)
-			TREE.addNode(Node(new_id, node_id, i, *cur_node.env)); // add Node and gave it parent action
-			TREE[new_id].env->step(i);
-			TREE[new_id].Q = TREE[new_id].env->evaluate(TREE[new_id].action); // make an evaluation (simulation step)
+			TREE.addNode(Node(new_id, node_id, cur_node.actions_succ[i], *cur_node.env)); // add Node and gave it parent action
+			TREE[new_id].env->step(cur_node.actions_succ[i]);
+
+			auto val = TREE[new_id].env->evaluate(TREE[0].action);
+			TREE[new_id].actions_succ = val.second;
+			TREE[new_id].Q = val.first;
 
 			TREE[new_id].update_metrics(TREE[new_id].Q, 1);
 		}
@@ -205,61 +212,61 @@ private:
 
 
 
-namespace testMCTS {
-	class Env : public IEnviroment {
-	public:
-		Env() {
-
-		}
-		void step(const int action) override {
-		}
-		int actions_number() const override {
-			return 2;
-		}
-		double evaluate(const int action) const override {
-			return (double)rand() / RAND_MAX;
-			//return value;
-		}
-
-		std::shared_ptr<IEnviroment> clone() const override {
-			return std::shared_ptr<IEnviroment>(new Env(*this));
-		}
-
-		double reward() {
-			return 0;
-		}
-	};
-
-	class Env2 : public IEnviroment {
-	public:
-		double value = 0;
-		std::vector<double> values_vec;
-		Env2() {
-
-		}
-		void step(const int action) override {
-			values_vec.push_back(value);
-			if (action == 0)
-				value += 0.01;
-			else
-				value += (double)rand() / RAND_MAX / 5;
-		}
-		int actions_number() const override {
-			return 2;
-		}
-		double evaluate(const int action) const override {
-			//return (double)rand() / RAND_MAX;
-			if (values_vec.size() < 100)
-				return value;
-			return value - values_vec.end()[-100];
-		}
-
-		double reward() {
-			return value;
-		}
-
-		std::shared_ptr<IEnviroment> clone() const override {
-			return std::shared_ptr<IEnviroment>(new Env2(*this));
-		}
-	};
-};
+//namespace testMCTS {
+//	class Env : public IEnviroment {
+//	public:
+//		Env() {
+//
+//		}
+//		void step(const int action) override {
+//		}
+//		int actions_number() const override {
+//			return 2;
+//		}
+//		double evaluate(const int action) const override {
+//			return (double)rand() / RAND_MAX;
+//			//return value;
+//		}
+//
+//		std::shared_ptr<IEnviroment> clone() const override {
+//			return std::shared_ptr<IEnviroment>(new Env(*this));
+//		}
+//
+//		double reward() {
+//			return 0;
+//		}
+//	};
+//
+//	class Env2 : public IEnviroment {
+//	public:
+//		double value = 0;
+//		std::vector<double> values_vec;
+//		Env2() {
+//
+//		}
+//		void step(const int action) override {
+//			values_vec.push_back(value);
+//			if (action == 0)
+//				value += 0.01;
+//			else
+//				value += (double)rand() / RAND_MAX / 5;
+//		}
+//		int actions_number() const override {
+//			return 2;
+//		}
+//		double evaluate(const int action) const override {
+//			//return (double)rand() / RAND_MAX;
+//			if (values_vec.size() < 100)
+//				return value;
+//			return value - values_vec.end()[-100];
+//		}
+//
+//		double reward() {
+//			return value;
+//		}
+//
+//		std::shared_ptr<IEnviroment> clone() const override {
+//			return std::shared_ptr<IEnviroment>(new Env2(*this));
+//		}
+//	};
+//};
