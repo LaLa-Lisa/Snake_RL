@@ -1,9 +1,10 @@
+#define PYPLT
 #include <iostream>
 #include <conio.h>
 #include <functional>
 #include "snake_env.hpp"
 #include "NeuralN.hpp"
-#include "LGenetic.h"
+#include "LGenetic.hpp"
 
 
 
@@ -20,10 +21,14 @@ int arg_min(std::vector<T, A> const& vec) {
 
 const int g_N = 10;
 const snake_env g_Env(g_N, g_N);
+//const NeuralN g_MyNet(
+//					{ (int)g_Env.observe_hard().size(), 20, 12, 4 }, 
+//					{ activation_type::RELU, activation_type::RELU, activation_type::RELU }
+//					  );
 const NeuralN g_MyNet(
-					{ (int)g_Env.observe_hard().size(), 20, 12, 4 }, 
-					{ activation_type::RELU, activation_type::RELU, activation_type::RELU }
-					  );
+	{ (int)g_Env.observe_hard().size(), 4 },
+	{ activation_type::SIGMOID }
+);
 
 
 
@@ -42,20 +47,6 @@ double fitness(const std::vector<double>& x) {
 	return -Env.snake_len();
 }
 
-double fitness_n_times(const std::vector<double>& x) {
-	const int n = 10;
-	double res = 0;
-	for (int i = 0; i < n; ++i) {
-		res += fitness(x);
-	}
-	return res / n;
-}
-
-double loss(std::vector<double>& x, std::string s) {
-	static double t1 = clock();
-	double t2 = clock();
-	return (t2 - t1) / CLOCKS_PER_SEC;
-}
 
 double show(const std::vector<double>& x) {
 	srand(10);
@@ -92,12 +83,13 @@ double show(const std::vector<double>& x) {
 }
 
 int main() {
-	LGenetic model(2000, g_MyNet.paramsNumber(), fitness_n_times);
+	LGenetic model(2000, g_MyNet.paramsNumber(), fitness);
 	model.rand_population_uniform();
 	model.set_crossover(LGenetic::SPBX);
 	model.set_mutation(LGenetic::AM);
-	model.set_loss(loss);
-	model.learn(1500);
+	model.enable_multiprocessing(2);
+	model.enable_avarage_fitness(15);
+	model.learn(100);
 	model.show_plt_avarage();
 	auto best = model.best_gene();
 
