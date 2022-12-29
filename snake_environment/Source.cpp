@@ -1,4 +1,4 @@
-#define PYPLT
+//#define PYPLT
 #include <iostream>
 #include <conio.h>
 #include <functional>
@@ -90,7 +90,9 @@ int main() {
 	model.enable_multiprocessing(2);
 	model.enable_avarage_fitness(15);
 	model.learn(100);
-	model.show_plt_avarage();
+	#ifdef PYPLT
+		model.show_plt_avarage();
+	#endif
 	auto best = model.best_gene();
 
 	/*std::ifstream fin("best.txt");
