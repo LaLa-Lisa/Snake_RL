@@ -106,7 +106,7 @@ public:
 
 	void draw_screen() {
 		if (!is_sfml_draw) throw;
-		int block_size = 50;
+		int block_size = (int)sreen->getSize().x / wight;
 
 		sf::Event event;
 		while (sreen->pollEvent(event))
@@ -119,12 +119,12 @@ public:
 		
 
 		//drawing tail
-		for (auto& i : Tail) {
+		for (int i = 0; i < Tail.size(); ++i) {
 			sf::RectangleShape tail_block;
 			tail_block.setSize(sf::Vector2f(block_size, block_size));
 			tail_block.setOutlineColor(sf::Color::Blue);
 			tail_block.setOutlineThickness(2);
-			tail_block.setPosition(block_size * i.X, block_size * i.Y);
+			tail_block.setPosition(block_size * Tail[i].X, block_size * Tail[i].Y);
 			sreen->draw(tail_block);
 		}
 
