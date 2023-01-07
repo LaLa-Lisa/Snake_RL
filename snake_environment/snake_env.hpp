@@ -122,7 +122,9 @@ public:
 		for (int i = 0; i < Tail.size(); ++i) {
 			sf::RectangleShape tail_block;
 			tail_block.setSize(sf::Vector2f(block_size, block_size));
-			tail_block.setOutlineColor(sf::Color::Blue);
+			tail_block.setOutlineColor(sf::Color(87, 132, 102));
+			if(i % 2) tail_block.setFillColor(sf::Color(127, 198, 78));
+			else tail_block.setFillColor(sf::Color(127, 160, 86));
 			tail_block.setOutlineThickness(2);
 			tail_block.setPosition(block_size * Tail[i].X, block_size * Tail[i].Y);
 			sreen->draw(tail_block);
@@ -131,15 +133,16 @@ public:
 		//drawing furt
 		sf::RectangleShape frut;
 		frut.setSize(sf::Vector2f(block_size, block_size));
-		frut.setFillColor(sf::Color::Red);
+		frut.setFillColor(sf::Color(128, 0, 128));
 		frut.setPosition(block_size * Frut.X, block_size * Frut.Y);
 		sreen->draw(frut);
 
 		//drawing head
 		sf::RectangleShape head;
 		head.setSize(sf::Vector2f(block_size, block_size));
-		head.setOutlineColor(sf::Color::Red);
-		head.setOutlineThickness(2);
+		head.setFillColor(sf::Color(128, 128, 0));
+		head.setOutlineColor(sf::Color(255, 215, 0));
+		head.setOutlineThickness(10);
 		head.setPosition(block_size * Head.X, block_size * Head.Y);
 		sreen->draw(head);
 
