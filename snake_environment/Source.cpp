@@ -56,14 +56,14 @@ public:
 	}
 	std::pair<double, std::vector<int>> evaluate(const int action) const override {
 		if (sn_env.score_() == g_N * g_N)
-			return { 999999, {1, 1, 1, 1} };
+			return { 99999, {0, 1, 2, 3} };
 
 		if (sn_env.is_done())
-			return { -1, {0, 0, 0, 0} };
+			return { -1, {0, 1, 2, 3} };
 		//return (double)sn_env.score_() - (double)sn_env.steps_without_fruit() / 10;
 		auto obs = sn_env.observe_hard();
-		auto choosed_actions = find_2_argmax(nn_static.forward(obs));
-		return { nn.forward(obs)[0], choosed_actions };
+		//auto choosed_actions = find_2_argmax(nn_static.forward(obs));
+		return { nn.forward(obs)[0], {0, 1, 2, 3} };
 	}
 	std::shared_ptr<IEnviroment> clone() const override {
 		return (std::shared_ptr<IEnviroment>)(new Final_env(*this));
@@ -165,21 +165,21 @@ double show(const std::vector<double>& x) {
 }
 
 int main() {
-	std::ifstream aaa("best_latest_static_.txt");
-	g_MyNet.read_weitghs(aaa);
+	//std::ifstream aaa("best_latest_static_.txt");
+	//g_MyNet.read_weitghs(aaa);
 	LGenetic model(128, g_MyNet.paramsNumber(), fitness_n_times);
 	model.rand_population_uniform();
 	model.set_crossover(LGenetic::SPBX);
 	model.set_mutation(LGenetic::AM);
 	model.set_loss(loss);
-	std::vector<double> bob;
+	/*std::vector<double> bob;
 	std::ifstream a("best_latest_value_.txt");
-	for (int i = 0; i < g_MyNet.paramsNumber(); ++i) {
+	for (int i = 0; i < g_MyNet_2.paramsNumber(); ++i) {
 		double b;
 		a >> b;
 		bob.push_back(b);
-	}
-	model.pop[0] = bob;
+	}*/
+	//model.pop[0] = bob;
 	model.learn(5000);
 	auto best = model.best_gene();
 
