@@ -292,11 +292,12 @@ public:
 		matplotlibcpp::clf();
 
 		if (is_avarage_fitness) {
+			std::cout << "plotting between\n";
 			std::map<std::string, std::string> keywords;
 			keywords["alpha"] = "0.4";
 			keywords["color"] = "grey";
 			keywords["hatch"] = "-";
-			matplotlibcpp::fill_between(x, min_fitness, max_fitness, keywords);
+			matplotlibcpp::fill_between(x, max_fitness, min_fitness, keywords);
 		}
 		// Plot a line whose name will show up as "log(x)" in the legend.
 		matplotlibcpp::plot(x, avg_fitness, { {"label", "fitness"} });

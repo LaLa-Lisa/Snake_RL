@@ -1,4 +1,5 @@
-#define PYPLT
+//#define PYPLT
+#define SFML_USE
 #include <iostream>
 #include <conio.h>
 #include <functional>
@@ -21,14 +22,14 @@ int arg_min(std::vector<T, A> const& vec) {
 
 const int g_N = 10;
 const snake_env g_Env(g_N, g_N);
-//const NeuralN g_MyNet(
-//		{ (int)g_Env.observe_hard().size(), 24, 12, 4 }, 
-//		{ activation_type::RELU, activation_type::RELU, activation_type::SIGMOID }
-//					  );
 const NeuralN g_MyNet(
-	{ (int)g_Env.observe_hard().size(), 4 },
-	{ activation_type::SIGMOID }
-);
+		{ (int)g_Env.observe_hard().size(), 24, 12, 4 }, 
+		{ activation_type::RELU, activation_type::RELU, activation_type::SIGMOID }
+					  );
+//const NeuralN g_MyNet(
+//	{ (int)g_Env.observe_hard().size(), 4 },
+//	{ activation_type::SIGMOID }
+//);
 
 
 double fitness(const std::vector<double>& x) {
@@ -72,26 +73,18 @@ double show(const std::vector<double>& x) {
 	local_Net.read_weitghs(a);*/
 
 	snake_env Env = g_Env;
+	#ifdef SFML_USE
+	sf::RenderWindow window(sf::VideoMode(500, 500), "Snake game");
+	Env.set_screen(&window);
+	#endif
 	system("cls");
 	while (!Env.is_done()) {
 		auto res = local_Net.forward(Env.observe_hard());
 
 		Env.step(arg_max(res));
 
-		Env.console_render();
-		int ii = 0;
-		for (auto& i : Env.observe_hard()) {
-			std::cout << i << ' ';
-			ii++;
-			if (ii % 4 == 0) {
-				if (ii % 8 == 0)
-					std::cout << '\n';
-				else 
-					std::cout << '\t';
-			}
-		}
-
-		//Sleep(100);
+		Env.render();
+		Sleep(100);
 	}
 	
 	return Env.snake_len();
@@ -167,8 +160,8 @@ void test() {
 
 int main() {
 	
-	training(100);
-	//retraining(100);
+	//training(100);
+	retraining(1);
 	test();
 	return 0;
 }
