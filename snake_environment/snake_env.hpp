@@ -345,6 +345,9 @@ public:
 	double reward() const {
 		return step_counter + (pow(2, score) + 500 * pow(score, 2.1)) - (pow(0.25 * step_counter, 1.3) * pow(score, 1.2));
 	}
+	int score_val() const {
+		return score;
+	}
 	int steps_without_fruit() const {
 		return this->steps_without_frut;
 	}

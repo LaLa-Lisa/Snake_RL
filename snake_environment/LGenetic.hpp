@@ -49,13 +49,24 @@ public:
 		{
 			#ifdef PYPLT
 				avg_fitness.push_back(abs(fitness_function(b_gene)));
+				if (is_avarage_fitness) {
+					double min_f = 999999; //TODO
+					double max_f = 0;
+					for (int i = 0; i < repeat_times; ++i) {
+						double res = abs(single_fitness(b_gene));
+						min_f = std::min(res, min_f);
+						max_f = std::max(res, max_f);
+					}
+					min_fitness.push_back(min_f);
+					max_fitness.push_back(max_f);
+				}
 			#endif
 			
 			current_iteration = t;
 			sort();
 
 			std::cout << t << " - " << fitness_function(b_gene) << " \t| " << show_time(start_time) << "\n";
-			if (t % 50 == 0) {
+			if (t % 10 == 0) {
 				save_best_gene("best_latest_.txt");
 			}
 
@@ -279,6 +290,14 @@ public:
 		for (int i = 0; i < avg_fitness.size(); ++i) x.push_back(static_cast<double>(i));
 		// Clear previous plot
 		matplotlibcpp::clf();
+
+		if (is_avarage_fitness) {
+			std::map<std::string, std::string> keywords;
+			keywords["alpha"] = "0.4";
+			keywords["color"] = "grey";
+			keywords["hatch"] = "-";
+			matplotlibcpp::fill_between(x, min_fitness, max_fitness, keywords);
+		}
 		// Plot a line whose name will show up as "log(x)" in the legend.
 		matplotlibcpp::plot(x, avg_fitness, { {"label", "fitness"} });
 		// Add graph title
@@ -620,6 +639,8 @@ private:
 	#ifdef PYPLT
 	//plotting staff
 	std::vector<double> avg_fitness;
+	std::vector<double> min_fitness;
+	std::vector<double> max_fitness;
 	#endif
 
 	bool is_avarage_fitness = false;
