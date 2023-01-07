@@ -20,7 +20,7 @@ int arg_min(std::vector<T, A> const& vec) {
 	return static_cast<int>(std::distance(vec.begin(), min_element(vec.begin(), vec.end())));
 }
 
-const int g_N = 10;
+const int g_N = 6;
 const snake_env g_Env(g_N, g_N);
 const NeuralN g_MyNet(
 		{ (int)g_Env.observe_hard().size(), 24, 12, 4 }, 
@@ -74,7 +74,7 @@ double show(const std::vector<double>& x) {
 
 	snake_env Env = g_Env;
 	#ifdef SFML_USE
-	sf::RenderWindow window(sf::VideoMode(500, 500), "Snake game");
+	sf::RenderWindow window(sf::VideoMode(50 * g_N, 50 * g_N), "Snake game");
 	Env.set_screen(&window);
 	#endif
 	system("cls");
