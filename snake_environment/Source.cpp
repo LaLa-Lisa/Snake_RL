@@ -27,7 +27,7 @@ NeuralN g_MyNet(
 					  );
 const NeuralN g_MyNet_2(
 	{ (int)g_Env.observe_hard().size(), 1 },
-	{ activation_type::RELU }
+	{ activation_type::SIGMOID }
 );
 
 int get_max_action(std::vector<std::tuple<int, double, int>>& res) {
@@ -105,7 +105,7 @@ double fitness(const std::vector<double>& x) {
 
 	while (!Env.is_done()) {
 		Final_env final_env(Env, local_Net, local_Net_static);
-		MCTS mcts(100, final_env);
+		MCTS mcts(50, final_env);
 		auto res = mcts.run();
 
 		//auto res = local_Net.forward(Env.observe_hard());
@@ -167,7 +167,7 @@ double show(const std::vector<double>& x) {
 int main() {
 	//std::ifstream aaa("best_latest_static_.txt");
 	//g_MyNet.read_weitghs(aaa);
-	LGenetic model(128, g_MyNet.paramsNumber(), fitness_n_times);
+	LGenetic model(128, g_MyNet_2.paramsNumber(), fitness_n_times);
 	model.rand_population_uniform();
 	model.set_crossover(LGenetic::SPBX);
 	model.set_mutation(LGenetic::AM);
