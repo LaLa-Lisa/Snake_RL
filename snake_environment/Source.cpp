@@ -27,7 +27,7 @@ NeuralN g_MyNet(
 					  );
 const NeuralN g_MyNet_2(
 	{ (int)g_Env.observe_hard().size(), 1 },
-	{ activation_type::RELU }
+	{ activation_type::SIGMOID }
 );
 
 int get_max_action(std::vector<std::tuple<int, double, int>>& res) {
@@ -56,10 +56,10 @@ public:
 	}
 	std::pair<double, std::vector<int>> evaluate(const int action) const override {
 		if (sn_env.score_() == g_N * g_N)
-			return { 999999, {1, 1, 1, 1} };
+			return { 99999, {} };
 
 		if (sn_env.is_done())
-			return { -1, {0, 0, 0, 0} };
+			return { -1, {} };
 		//return (double)sn_env.score_() - (double)sn_env.steps_without_fruit() / 10;
 		auto obs = sn_env.observe_hard();
 		auto choosed_actions = find_2_argmax(nn_static.forward(obs));
@@ -105,7 +105,7 @@ double fitness(const std::vector<double>& x) {
 
 	while (!Env.is_done()) {
 		Final_env final_env(Env, local_Net, local_Net_static);
-		MCTS mcts(100, final_env);
+		MCTS mcts(50, final_env);
 		auto res = mcts.run();
 
 		//auto res = local_Net.forward(Env.observe_hard());
@@ -167,19 +167,19 @@ double show(const std::vector<double>& x) {
 int main() {
 	std::ifstream aaa("best_latest_static_.txt");
 	g_MyNet.read_weitghs(aaa);
-	LGenetic model(128, g_MyNet.paramsNumber(), fitness_n_times);
+	LGenetic model(128, g_MyNet_2.paramsNumber(), fitness_n_times);
 	model.rand_population_uniform();
 	model.set_crossover(LGenetic::SPBX);
 	model.set_mutation(LGenetic::AM);
 	model.set_loss(loss);
-	std::vector<double> bob;
+	/*std::vector<double> bob;
 	std::ifstream a("best_latest_value_.txt");
 	for (int i = 0; i < g_MyNet.paramsNumber(); ++i) {
 		double b;
 		a >> b;
 		bob.push_back(b);
 	}
-	model.pop[0] = bob;
+	model.pop[0] = bob;*/
 	model.learn(5000);
 	auto best = model.best_gene();
 
