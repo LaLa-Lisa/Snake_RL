@@ -52,13 +52,16 @@ public:
 				if (is_avarage_fitness) {
 					double min_f = 999999; //TODO
 					double max_f = 0;
+					double sum = 0;
 					for (int i = 0; i < repeat_times; ++i) {
 						double res = abs(single_fitness(b_gene));
+						sum += res;
 						min_f = std::min(res, min_f);
 						max_f = std::max(res, max_f);
 					}
 					min_fitness.push_back(min_f);
 					max_fitness.push_back(max_f);
+					avg_fitness.end()[-1] = sum / repeat_times;
 				}
 			#endif
 			
@@ -293,20 +296,22 @@ public:
 
 		if (is_avarage_fitness) {
 			std::cout << "plotting between\n";
-			std::map<std::string, std::string> keywords;
+			/*std::map<std::string, std::string> keywords;
 			keywords["alpha"] = "0.4";
 			keywords["color"] = "grey";
 			keywords["hatch"] = "-";
-			matplotlibcpp::fill_between(x, max_fitness, min_fitness, keywords);
+			matplotlibcpp::fill_between(x, max_fitness, min_fitness, keywords);*/
+			matplotlibcpp::plot(x, max_fitness, { {"label", "max fitness"} });
+			matplotlibcpp::plot(x, min_fitness, { {"label", "min fitness"} });
 		}
 		// Plot a line whose name will show up as "log(x)" in the legend.
-		matplotlibcpp::plot(x, avg_fitness, { {"label", "fitness"} });
+		matplotlibcpp::plot(x, avg_fitness, { {"label", "average fitness"} });
 		// Add graph title
-		matplotlibcpp::title("Avarage fitness");
+		matplotlibcpp::title("Fitness");
 		// Enable legend.
 		matplotlibcpp::legend();
 		matplotlibcpp::show();
-		std::cout << "avarage fitness plot was shown\n";
+		std::cout << "average fitness plot was shown\n";
 	}
 #endif;
 
