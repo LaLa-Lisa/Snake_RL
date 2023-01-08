@@ -29,8 +29,8 @@
     <ClInclude Include="NeuralN.hpp">
       <Filter>Resource Files</Filter>
     </ClInclude>
-    <ClInclude Include="LGenetic.hpp">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="MCTS_copy.hpp">
+      <Filter>Resource Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

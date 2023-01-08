@@ -1,11 +1,11 @@
+#define PYPLT
 #define SFML_USE
-
 #include <iostream>
 #include <conio.h>
 #include <functional>
 #include "snake_env.hpp"
 #include "NeuralN.hpp"
-#include "LGenetic.h"
+#include "LGenetic.hpp"
 #include "MCTS_copy.hpp"
 
 
@@ -170,29 +170,21 @@ double show(const std::vector<double>& x, int p) {
 	return Env.score_();
 }
 
-int main() {
-	//std::ifstream aaa("best_latest_.txt");
-	//g_MyNet.read_weitghs(aaa);
-	LGenetic model(128, g_MyNet.paramsNumber(), fitness_n_times);
+void training(int times) {
+	LGenetic model(128, g_MyNet.paramsNumber(), fitness);
 	model.rand_population_uniform();
 	model.set_crossover(LGenetic::SPBX);
 	model.set_mutation(LGenetic::AM);
-	model.set_loss(loss);
-	/*std::vector<double> bob;
-	std::ifstream a("best_latest_.txt130__");
-	for (int i = 0; i < g_MyNet.paramsNumber(); ++i) {
-		double b;
-		a >> b;
-		bob.push_back(b);
-	}
-	model.pop[0] = bob;*/
-	model.learn(5000);
+	model.enable_multiprocessing(10);
+	model.enable_avarage_fitness(5);
+	model.learn(times);
+#ifdef PYPLT
+	model.show_plt_avarage();
+	model.show_plt_avarage2();
+#endif
+
 	auto best = model.best_gene();
 
-	/*std::ifstream fin("best.txt");
-	for (int i = 0; i < g_MyNet.paramsNumber(); ++i) 
-		fin >> best[i];*/
-	
 	while (true) {
 		int a;
 		std::cin >> a;
@@ -222,6 +214,10 @@ int main() {
 		//	std::cout <<'\n' << i + 1 << '\t' << res << '\t' << summ / (i + 1) << " Even " << res_0 << " Odd " << res_1 << '\n';
 		//}
 	}
+}
+
+int main() {
+	training(2000);
 
 	return 0;
 }
