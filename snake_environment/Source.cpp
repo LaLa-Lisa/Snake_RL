@@ -167,7 +167,7 @@ double show(const std::vector<double>& x) {
 }
 
 void training(int times) {
-	LGenetic model(128, g_MyNet.paramsNumber(), fitness);
+	LGenetic model(128, g_MyNet_2.paramsNumber(), fitness);
 	model.rand_population_uniform();
 	model.set_crossover(LGenetic::SPBX);
 	model.set_mutation(LGenetic::AM);
@@ -189,6 +189,8 @@ void training(int times) {
 }
 
 int main() {
+	std::ifstream aaa("best_latest_static_.txt");
+	g_MyNet.read_weitghs(aaa);
 	training(2000);
 
 	return 0;
