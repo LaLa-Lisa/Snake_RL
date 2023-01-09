@@ -116,16 +116,16 @@ public:
 	void print_binary_tree() {
 		print_tree_level(&TREE[0], 0);
 	}
-	int max_deep_valye = -1;
+
 private:
 	MCTree TREE;
 	const IEnviroment& base_env;
 
 	int gothrough() {
 		Node* current_node = &TREE[0];
-		int d = 0;
+
 		while (current_node->succ.size()) {
-			d++;
+
 			std::vector<int>& children = current_node->succ;
 			double max_UCB = -99999999;
 			int max_ind = -1;
@@ -139,7 +139,6 @@ private:
 
 			current_node = &TREE[max_ind];
 		}
-		max_deep_valye = std::max(max_deep_valye, d);
 		return current_node->id;
 	}
 

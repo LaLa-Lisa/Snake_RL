@@ -152,9 +152,7 @@ double show(const std::vector<double>& x, int p) {
 	sf::RenderWindow window(sf::VideoMode(30 * g_N, 30 * g_N), "Snake game");
 	Env.set_screen(&window);
 #endif
-	int e = 0;
 	while (!Env.is_done()) {
-		e++;
 		Final_env final_env(Env, local_Net, local_Net_static);
 		MCTS mcts(50, final_env);
 		auto res = mcts.run();
@@ -163,7 +161,6 @@ double show(const std::vector<double>& x, int p) {
 
 		Env.step(get_max_action(res));
 		Env.render();
-		std::cout << mcts.max_deep_valye << '\n';
 	}
 	//std::cout << e << "\n\n";
 	//std::cout << p << ' ' << (double)Env.score_() / (p * p) << '|';
@@ -175,7 +172,7 @@ void training(int times) {
 	model.rand_population_uniform();
 	model.set_crossover(LGenetic::SPBX);
 	model.set_mutation(LGenetic::AM);
-	model.enable_multiprocessing(10);
+	model.enable_multiprocessing(8);
 	model.enable_avarage_fitness(5);
 	model.learn(times);
 #ifdef PYPLT
