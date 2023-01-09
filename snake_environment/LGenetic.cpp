@@ -42,7 +42,7 @@ void LGenetic::learn(int generationsNum) {
 		sort();
 		std::cout << t << " - " << fitness_function(b_gene) << " | " << loss(b_gene, file_validation) << "\n";
 		if (t % 50) {
-			std::ofstream f("best_latest_.txt");
+			std::ofstream f("best_latest_.txt" + std::to_string(t));
 			for (auto& i : pop[0])
 				f << i << ' ';
 		}

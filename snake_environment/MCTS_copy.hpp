@@ -11,7 +11,7 @@ class IEnviroment
 public:
 	virtual void step(const int action) = 0;  // совершает шаг по номеру действия из actions_number
 	virtual int actions_number() const = 0;  // возращает количество возможных действий в текущей ситуации
-	virtual std::pair<double, std::vector<int>> evaluate(const int action) const = 0;  // возращает оценку текущей ситуации и ветвление
+	virtual std::pair<double, std::vector<double>> evaluate(const int action) const = 0;  // возращает оценку текущей ситуации и ветвление
 	virtual std::shared_ptr<IEnviroment> clone() const = 0;  // 
 };
 
@@ -58,7 +58,7 @@ public:
 
 
 private:
-	const double C = 0.5;
+	const double C = 0;
 };
 
 
@@ -95,8 +95,8 @@ public:
 	MCTS(const int _max_deep, IEnviroment& _base_env, const int C = 0) : max_deep(_max_deep), base_env(_base_env) {
 		TREE.addNode(Node(0, -1, -1, base_env));  // id 0 and -1 is parent
 		auto val = TREE[0].env->evaluate(TREE[0].action);
-		TREE[0].actions_succ = val.second;
-		TREE[0].Q = val.first;
+		TREE[0].actions_succ = { 0,1,2,3 };
+		TREE[0].Q = 1;
 	}
 
 	std::vector<std::tuple<int, double, int>> run() {
@@ -116,14 +116,16 @@ public:
 	void print_binary_tree() {
 		print_tree_level(&TREE[0], 0);
 	}
+	int max_deep_valye = -1;
 private:
 	MCTree TREE;
 	const IEnviroment& base_env;
 
 	int gothrough() {
 		Node* current_node = &TREE[0];
-
+		int d = 0;
 		while (current_node->succ.size()) {
+			d++;
 			std::vector<int>& children = current_node->succ;
 			double max_UCB = -99999999;
 			int max_ind = -1;
@@ -137,20 +139,22 @@ private:
 
 			current_node = &TREE[max_ind];
 		}
+		max_deep_valye = std::max(max_deep_valye, d);
 		return current_node->id;
 	}
 
 	void expand(const int node_id) {
 		Node& cur_node = TREE[node_id];
+		auto val = cur_node.env->evaluate(TREE[0].action);
 		
 		for (int i = 0; i < cur_node.actions_succ.size(); ++i) {
 			int new_id = nodes_count(); // got new id (size is 1 more than max id)
 			TREE.addNode(Node(new_id, node_id, cur_node.actions_succ[i], *cur_node.env)); // add Node and gave it parent action
 			TREE[new_id].env->step(cur_node.actions_succ[i]);
 
-			auto val = TREE[new_id].env->evaluate(TREE[0].action);
-			TREE[new_id].actions_succ = val.second;
-			TREE[new_id].Q = val.first;
+			//auto val = TREE[new_id].env->evaluate(TREE[0].action);
+			TREE[new_id].actions_succ = { 0,1,2,3 };
+			TREE[new_id].Q = val.second[i];
 
 			TREE[new_id].update_metrics(TREE[new_id].Q, 1);
 		}

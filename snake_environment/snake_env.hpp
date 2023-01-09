@@ -46,8 +46,8 @@ public:
 		step_counter = 0;
 		steps_without_frut = 0;
 		score = 0;
-		Head.X = wight / 2;
-		Head.Y = heght / 2;
+		Head.X = heght / 2;
+		Head.Y = wight / 2;
 		Tail.reserve(wight * heght);
 		spawn_frut();
 		dir = UP;
@@ -75,19 +75,19 @@ public:
 		std::cout << "Sorce:" << score << " and Tail length: " << snake_len() << std::endl;
 		std::cout << "FrutCoords:" << Frut.X << " " << Frut.Y << std::endl;
 		std::cout << "Direction: " << direction() << "       " << std::endl;
-		std::cout << "TailX: ";
-		for (auto& i : Tail) std::cout << i.X << " ";
-		std::cout << std::endl << "TailY: ";
-		for (auto& i : Tail) std::cout << i.Y << " ";
-		std::cout << std::endl;
+		//std::cout << "TailX: ";
+		//for (auto& i : Tail) std::cout << i.X << " ";
+		//std::cout << std::endl << "TailY: ";
+		//for (auto& i : Tail) std::cout << i.Y << " ";
+		//std::cout << std::endl;
 
-		std::cout << "obs2: ";
-		for (auto& i : observe2()) std::cout << i << " ";
-		std::cout << std::endl;
+		//std::cout << "obs2: ";
+		//for (auto& i : observe2()) std::cout << i << " ";
+		//std::cout << std::endl;
 
 	}
 	void render() {
-		console_render();
+		//console_render();
 		#ifdef SFML_USE
 		if (is_sfml_draw) draw_screen();
 		#endif
@@ -390,185 +390,7 @@ public:
 		return ans;
 	}*/
 
-	std::vector<double> observe2() const {
-		std::vector<double> angles = { PI / 4, 3 * PI / 4 };
-		std::vector<double> sensors(angles.size() * 2);
-		for (auto& i : Tail) {
-			check_sensors(Head, i, sensors, angles);
-		}
-		return sensors;
-	}
-	std::vector<double> observe_hard() const {
-		double NON = -1;
-		double s_wall_1 = Head.X;
-		double s_wall_2 = Head.Y;
-		double s_wall_3 = heght - Head.X - 1.0;
-		double s_wall_4 = wight - Head.Y - 1.0;
-		double s_diag_wall_1 = min(s_wall_1, s_wall_2);
-		double s_diag_wall_2 = min(s_wall_2, s_wall_3);
-		double s_diag_wall_3 = min(s_wall_3, s_wall_4);
-		double s_diag_wall_4 = min(s_wall_4, s_wall_1);
-
-		double tempNON = 1000;
-		double s_tail_1 = tempNON;
-		double s_tail_2 = tempNON;
-		double s_tail_3 = tempNON;
-		double s_tail_4 = tempNON;
-		for (int i = 0; i < Tail.size(); ++i) {
-			if (Head.X == Tail[i].X)
-				(Head.Y > Tail[i].Y)
-				?
-				s_tail_2 = min(s_tail_2, abs(Head.Y - Tail[i].Y) - 1)
-				: 
-				s_tail_4 = min(s_tail_4, abs(Head.Y - Tail[i].Y) - 1);
-
-			if (Head.Y == Tail[i].Y) 
-				(Head.X > Tail[i].X) 
-				? 
-				s_tail_1 = min(s_tail_1, abs(Head.X - Tail[i].X) - 1)
-				: 
-				s_tail_3 = min(s_tail_3, abs(Head.X - Tail[i].X) - 1);
-		}
-		if (s_tail_1 == tempNON) s_tail_1 = NON;
-		if (s_tail_2 == tempNON) s_tail_2 = NON;
-		if (s_tail_3 == tempNON) s_tail_3 = NON;
-		if (s_tail_4 == tempNON) s_tail_4 = NON;
-
-		double s_diag_tail_1 = NON;
-		double s_diag_tail_2 = NON;
-		double s_diag_tail_3 = NON;
-		double s_diag_tail_4 = NON;
-		double s_diag_fruit_1 = NON;
-		double s_diag_fruit_2 = NON;
-		double s_diag_fruit_3 = NON;
-		double s_diag_fruit_4 = NON;
-		for (int i = 0; i <= min(s_wall_1, s_wall_2); ++i) {
-			if (s_diag_tail_1 == NON && is_tail(Scoord(Head.X - i, Head.Y - i))) {
-				s_diag_tail_1 = i - 1;
-				//break;
-			}
-			if (Head.X - i == Frut.X && Head.Y - i == Frut.Y) {
-				s_diag_fruit_1 = i - 1;
-			}
-		}
-
-		for (int i = 0; i <= min(s_wall_2, s_wall_3); ++i) {
-			if (s_diag_tail_2 == NON && is_tail(Scoord(Head.X + i, Head.Y - i))) {
-				s_diag_tail_2 = i - 1;
-				//break;
-			}
-			if (Head.X + i == Frut.X && Head.Y - i == Frut.Y) {
-				s_diag_fruit_2 = i - 1;
-			}
-		}
-
-		for (int i = 0; i <= min(s_wall_3, s_wall_4); ++i) {
-			if (s_diag_tail_3 == NON && is_tail(Scoord(Head.X + i, Head.Y + i))) {
-				s_diag_tail_3 = i - 1;
-				//break;
-			}
-			if (Head.X + i == Frut.X && Head.Y + i == Frut.Y) {
-				s_diag_fruit_3 = i - 1;
-			}
-		}
-		for (int i = 0; i <= min(s_wall_4, s_wall_1); ++i) {
-			if (s_diag_tail_4 == NON && is_tail(Scoord(Head.X - i, Head.Y + i))) {
-				s_diag_tail_4 = i - 1;
-				//break;
-			}
-			if (Head.X - i == Frut.X && Head.Y + i == Frut.Y) {
-				s_diag_fruit_4 = i - 1;
-			}
-		}
-
-
-
-		double s_fruit_1 = NON;
-		double s_fruit_2 = NON;
-		double s_fruit_3 = NON;
-		double s_fruit_4 = NON;
-		if (Head.X == Frut.X) (Head.Y > Frut.Y) ? s_fruit_2 = Head.Y - Frut.Y - 1 : s_fruit_4 = Frut.Y - Head.Y - 1;
-		if (Head.Y == Frut.Y) (Head.X > Frut.X) ? s_fruit_1 = Head.X - Frut.X - 1 : s_fruit_3 = Frut.X - Head.X - 1;
-
-		
-		std::vector<double> ans;
-		ans = {
-			s_wall_1, s_wall_2, s_wall_3, s_wall_4,
-			s_diag_wall_1, s_diag_wall_2, s_diag_wall_3, s_diag_wall_4,
-			s_tail_1, s_tail_2, s_tail_3, s_tail_4,
-			s_diag_tail_1, s_diag_tail_2, s_diag_tail_3, s_diag_tail_4,
-			s_fruit_1, s_fruit_2, s_fruit_3, s_fruit_4,
-			s_diag_fruit_1, s_diag_fruit_2, s_diag_fruit_3, s_diag_fruit_4
-		};
-
-		for (int i = 0; i < 12; i++) {
-			if (ans[i] == NON)
-				ans[i] = 0;
-			else
-				ans[i] = 1.0 / (ans[i] + 1);
-		}
-		for (int i = 12; i < ans.size(); ++i) {
-			if (ans[i] == NON)
-				ans[i] = 0;
-			else
-				ans[i] = 1.0;
-		}
-		
-		
-		
-		//ans.push_back((double)tailN);
-		for (auto& i : direction_output()) {
-			ans.push_back(i);
-		}
-		for (auto& i : tail_direction()) {
-			ans.push_back(i);
-		}
-		return ans;
-	}
-
-	std::vector<double> observe_light() const{
-		double sensor1 = Head.X;
-		double sensor2 = Head.Y;
-		double sensor3 = heght - Head.X - 1;
-		double sensor4 = wight - Head.Y - 1;
-		
-		double sensor5 = -1;
-		double sensor6 = -1;
-		double sensor7 = -1;
-		double sensor8 = -1;
-		if (Head.X == Frut.X) (Head.Y > Frut.Y) ? sensor6 = Head.Y - Frut.Y - 1 : sensor8 = Frut.Y - Head.Y - 1;
-		if (Head.Y == Frut.Y) (Head.X > Frut.X) ? sensor5 = Head.X - Frut.X - 1 : sensor7 = Frut.X - Head.X - 1;
-
-		double sensor9 = -1;
-		double sensor10 = -1;
-		double sensor11 = -1;
-		double sensor12 = -1;
-		for (int i = 0; i < Tail.size(); ++i) {
-			if (Head.X == Tail[i].X) (Head.Y > Tail[i].Y) ? sensor10 = min(max(sensor10, sensor2), Head.Y - Tail[i].Y - 1) : sensor12 = min(max(sensor12, sensor4), Tail[i].Y - Head.Y - 1);
-			if (Head.Y == Tail[i].Y) (Head.X > Tail[i].X) ? sensor9 = min(max(sensor9, sensor1), Head.X - Tail[i].X - 1) : sensor11 = min(max(sensor11, sensor3), Tail[i].X - Head.X - 1);
-		}
-		std::vector<double> ans;
-		switch (dir)
-		{
-		case UP:
-			ans = { sensor1, sensor2, sensor3, sensor5, sensor6, sensor7, sensor9, sensor10, sensor11 };
-			break;
-		case RIGHT:
-			ans = { sensor2, sensor3, sensor4, sensor6, sensor7, sensor8, sensor10, sensor11, sensor12 };
-			break;
-		case LEFT:
-			ans = { sensor4, sensor1, sensor2, sensor8, sensor5, sensor6, sensor12, sensor9, sensor10 };
-			break;
-		case DOWN:
-			ans = { sensor3, sensor4, sensor1, sensor7, sensor8, sensor5, sensor11, sensor12, sensor9 };
-			break;
-		}
-
-		for (auto& i : direction_output()) {
-			ans.push_back((double)i);
-		}
-		return ans;
-	}
+	
 
 	std::vector<double> observe2() const {
 		std::vector<double> angles = { PI / 4, 3 * PI / 4 };
@@ -668,8 +490,9 @@ public:
 		return { 0, 0, 0, 0 };
 	}
 
-private:
+
 	const int wight, heght;
+	private:
 	Scoord Head;
 	Scoord Frut;
 	int score = 0;

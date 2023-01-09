@@ -18,9 +18,6 @@
     <ClCompile Include="Source.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="LGenetic.cpp">
-      <Filter>Resource Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="snake_env.hpp">
@@ -32,11 +29,8 @@
     <ClInclude Include="NeuralN.hpp">
       <Filter>Resource Files</Filter>
     </ClInclude>
-    <ClInclude Include="LGenetic.h">
+    <ClInclude Include="LGenetic.hpp">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MCTS_copy.hpp">
-      <Filter>Resource Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

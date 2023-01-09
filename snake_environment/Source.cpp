@@ -1,3 +1,5 @@
+#define SFML_USE
+
 #include <iostream>
 #include <conio.h>
 #include <functional>
@@ -19,14 +21,14 @@ int arg_min(std::vector<T, A> const& vec) {
 	return static_cast<int>(std::distance(vec.begin(), min_element(vec.begin(), vec.end())));
 }
 
-const int g_N = 6;
+const int g_N = 10;
 const snake_env g_Env(g_N, g_N);
 NeuralN g_MyNet(
 					{ (int)g_Env.observe_hard().size(), 4 }, 
-					{ activation_type::RELU }
+					{ activation_type::SIGMOID }
 					  );
 const NeuralN g_MyNet_2(
-	{ (int)g_Env.observe_hard().size(), 1 },
+	{ (int)g_Env.observe_hard().size() + 1, 1 },
 	{ activation_type::RELU }
 );
 
@@ -54,16 +56,17 @@ public:
 			//return 0;
 		return 4;
 	}
-	std::pair<double, std::vector<int>> evaluate(const int action) const override {
-		if (sn_env.score_() == g_N * g_N)
-			return { 999999, {1, 1, 1, 1} };
+	std::pair<double, std::vector<double>> evaluate(const int action) const override {
+		if (sn_env.score_() == sn_env.wight * sn_env.heght)
+			return { 999999, {999999, 999999, 999999, 999999} };
 
 		if (sn_env.is_done())
-			return { -1, {0, 0, 0, 0} };
+			return { -1, {-1, -1, -1, -1} };
 		//return (double)sn_env.score_() - (double)sn_env.steps_without_fruit() / 10;
 		auto obs = sn_env.observe_hard();
-		auto choosed_actions = find_2_argmax(nn_static.forward(obs));
-		return { nn.forward(obs)[0], choosed_actions };
+		//auto choosed_actions = find_2_argmax(nn_static.forward(obs));
+		//obs.push_back((double)sn_env.score_() / 36);
+		return { 1, nn.forward(obs) };
 	}
 	std::shared_ptr<IEnviroment> clone() const override {
 		return (std::shared_ptr<IEnviroment>)(new Final_env(*this));
@@ -95,32 +98,41 @@ private:
 	const NeuralN& nn_static;
 };
 
-double fitness(const std::vector<double>& x) {
+double fitness(const std::vector<double>& x, int r) {
 	//srand(0);
 	const auto local_Net_static = g_MyNet;
-	auto local_Net = g_MyNet_2;
+	auto local_Net = g_MyNet;
 	local_Net.read_weitghs(x);
-
-	snake_env Env = g_Env;
+	//int r = rand() % 8 + 5;
+	snake_env Env(r, r);
 
 	while (!Env.is_done()) {
 		Final_env final_env(Env, local_Net, local_Net_static);
-		MCTS mcts(100, final_env);
+		MCTS mcts(50, final_env);
 		auto res = mcts.run();
 
 		//auto res = local_Net.forward(Env.observe_hard());
 
 		Env.step(get_max_action(res));
 	}
-	return -Env.score_();
+	return -((double)Env.score_() / (r*r));
 }
 
 double fitness_n_times(const std::vector<double>& x) {
-	const int n = 5;
+	const int n = 1;
 	double res = 0;
-	for (int i = 0; i < n; ++i) {
-		res += fitness(x);
-	}
+	res += fitness(x, 7);
+	res += fitness(x, 7);
+	res += fitness(x, 7);
+	res += fitness(x, 6);
+	res += fitness(x, 6);
+	res += fitness(x, 10);
+	res /= 6;
+	//for (int i = 0; i < n; ++i) {
+		//for (int j = 5; j < 13; ++j)
+			//res += fitness(x, j);
+		//res /= 8;
+	//}
 	return res / n;
 }
 
@@ -130,58 +142,61 @@ double loss(std::vector<double>& x, std::string s) {
 	return (t2 - t1) / CLOCKS_PER_SEC;
 }
 
-double show(const std::vector<double>& x) {
-	srand(0);
-	auto local_Net = g_MyNet;
-	local_Net.read_weitghs(x);
-	local_Net.write_weitghs("best.txt");
+double show(const std::vector<double>& x, int p) {
+	//srand(0);
+	//auto local_Net = g_MyNet;
+	//local_Net.read_weitghs(x);
+	//local_Net.write_weitghs("best.txt");
 	/*auto a = std::ifstream("best.txt");
 	local_Net.read_weitghs(a);*/
+	auto a = std::ifstream("best_latest_.txt130__");
+	auto local_Net_static = g_MyNet;
+	//local_Net_static.read_weitghs(a);
+	auto local_Net = g_MyNet;
+	local_Net.read_weitghs(a);
 
-	snake_env Env = g_Env;
-	system("cls");
+	snake_env Env(p,p);
+
+#ifdef SFML_USE
+	sf::RenderWindow window(sf::VideoMode(30 * g_N, 30 * g_N), "Snake game");
+	Env.set_screen(&window);
+#endif
+	int e = 0;
 	while (!Env.is_done()) {
-		auto res = local_Net.forward(Env.observe_hard());
+		e++;
+		Final_env final_env(Env, local_Net, local_Net_static);
+		MCTS mcts(50, final_env);
+		auto res = mcts.run();
 
-		Env.step(arg_max(res));
+		//auto res = local_Net.forward(Env.observe_hard());
 
-		Env.console_render();
-		int ii = 0;
-		for (auto& i : Env.observe_hard()) {
-			std::cout << i << ' ';
-			ii++;
-			if (ii % 4 == 0) {
-				if (ii % 8 == 0)
-					std::cout << '\n';
-				else 
-					std::cout << '\t';
-			}
-		}
-
-		//Sleep(100);
+		Env.step(get_max_action(res));
+		Env.render();
+		std::cout << mcts.max_deep_valye << '\n';
 	}
-	
-	return Env.snake_len();
+	//std::cout << e << "\n\n";
+	//std::cout << p << ' ' << (double)Env.score_() / (p * p) << '|';
+	return Env.score_();
 }
 
 int main() {
-	std::ifstream aaa("best_latest_static_.txt");
-	g_MyNet.read_weitghs(aaa);
-	LGenetic model(128, g_MyNet.paramsNumber(), fitness_n_times);
-	model.rand_population_uniform();
-	model.set_crossover(LGenetic::SPBX);
-	model.set_mutation(LGenetic::AM);
-	model.set_loss(loss);
-	std::vector<double> bob;
-	std::ifstream a("best_latest_value_.txt");
-	for (int i = 0; i < g_MyNet.paramsNumber(); ++i) {
-		double b;
-		a >> b;
-		bob.push_back(b);
-	}
-	model.pop[0] = bob;
-	model.learn(5000);
-	auto best = model.best_gene();
+	//std::ifstream aaa("best_latest_.txt");
+	//g_MyNet.read_weitghs(aaa);
+	//LGenetic model(128, g_MyNet.paramsNumber(), fitness_n_times);
+	//model.rand_population_uniform();
+	//model.set_crossover(LGenetic::SPBX);
+	//model.set_mutation(LGenetic::AM);
+	//model.set_loss(loss);
+	//std::vector<double> bob;
+	//std::ifstream a("best_latest_.txt130__");
+	//for (int i = 0; i < g_MyNet.paramsNumber(); ++i) {
+	//	double b;
+	//	a >> b;
+	//	bob.push_back(b);
+	//}
+	//model.pop[0] = bob;
+	//model.learn(5000);
+	//auto best = model.best_gene();
 
 	//std::ifstream fin("best.txt");
 	//for (int i = 0; i < g_MyNet.paramsNumber(); ++i) 
@@ -190,7 +205,31 @@ int main() {
 	while (true) {
 		int a;
 		std::cin >> a;
-		show(best);
+		std::cin >> a;
+		std::cin >> a;
+		show({}, 10);
+		//double summ = 0;
+		//for (int i = 0; i < 1000; ++i) {
+		//	double res_0 = 0;
+		//	double res_1 = 0;
+		//	res_0 += (double)show({}, 6) / 36;
+		//	res_0 += (double)show({}, 8) / 64;
+		//	res_0 += (double)show({}, 10) / 100;
+		//	res_0 += (double)show({}, 12) / 144;
+		//	res_0 /= 4;
+		//	res_1 += (double)show({}, 5) / 25;
+		//	res_1 += (double)show({}, 7) / 49;
+		//	res_1 += (double)show({}, 9) / 81;
+		//	res_1 += (double)show({}, 11) / 121;
+		//	res_1 /= 4;
+		//	//for (int j = 5; j < 13; ++j) {
+		//		//res += (double)show({}, j) / (j*j);
+		//	//}
+		//	double res = (res_0 + res_1) / 2;
+		//	//auto res = show({}, 5);
+		//	summ += res;
+		//	std::cout <<'\n' << i + 1 << '\t' << res << '\t' << summ / (i + 1) << " Even " << res_0 << " Odd " << res_1 << '\n';
+		//}
 	}
 
 	return 0;
