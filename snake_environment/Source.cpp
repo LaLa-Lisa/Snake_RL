@@ -21,7 +21,7 @@ int arg_min(std::vector<T, A> const& vec) {
 	return static_cast<int>(std::distance(vec.begin(), min_element(vec.begin(), vec.end())));
 }
 
-const int g_N = 10;
+const int g_N = 6;
 const snake_env g_Env(g_N, g_N);
 NeuralN g_MyNet(
 					{ (int)g_Env.observe_hard().size(), 4 }, 
@@ -98,13 +98,13 @@ private:
 	const NeuralN& nn_static;
 };
 
-double fitness(const std::vector<double>& x, int r) {
+double fitness(const std::vector<double>& x) {
 	//srand(0);
 	const auto local_Net_static = g_MyNet;
 	auto local_Net = g_MyNet;
 	local_Net.read_weitghs(x);
 	//int r = rand() % 8 + 5;
-	snake_env Env(r, r);
+	snake_env Env = g_Env;
 
 	while (!Env.is_done()) {
 		Final_env final_env(Env, local_Net, local_Net_static);
@@ -115,24 +115,15 @@ double fitness(const std::vector<double>& x, int r) {
 
 		Env.step(get_max_action(res));
 	}
-	return -((double)Env.score_() / (r*r));
+	return -Env.score_();
 }
 
 double fitness_n_times(const std::vector<double>& x) {
-	const int n = 1;
+	const int n = n;
 	double res = 0;
-	res += fitness(x, 7);
-	res += fitness(x, 7);
-	res += fitness(x, 7);
-	res += fitness(x, 6);
-	res += fitness(x, 6);
-	res += fitness(x, 10);
-	res /= 6;
-	//for (int i = 0; i < n; ++i) {
-		//for (int j = 5; j < 13; ++j)
-			//res += fitness(x, j);
-		//res /= 8;
-	//}
+	for (int i = 0; i < n; ++i) {
+		res += fitness(x);
+	}
 	return res / n;
 }
 
@@ -182,25 +173,25 @@ double show(const std::vector<double>& x, int p) {
 int main() {
 	//std::ifstream aaa("best_latest_.txt");
 	//g_MyNet.read_weitghs(aaa);
-	//LGenetic model(128, g_MyNet.paramsNumber(), fitness_n_times);
-	//model.rand_population_uniform();
-	//model.set_crossover(LGenetic::SPBX);
-	//model.set_mutation(LGenetic::AM);
-	//model.set_loss(loss);
-	//std::vector<double> bob;
-	//std::ifstream a("best_latest_.txt130__");
-	//for (int i = 0; i < g_MyNet.paramsNumber(); ++i) {
-	//	double b;
-	//	a >> b;
-	//	bob.push_back(b);
-	//}
-	//model.pop[0] = bob;
-	//model.learn(5000);
-	//auto best = model.best_gene();
+	LGenetic model(128, g_MyNet.paramsNumber(), fitness_n_times);
+	model.rand_population_uniform();
+	model.set_crossover(LGenetic::SPBX);
+	model.set_mutation(LGenetic::AM);
+	model.set_loss(loss);
+	/*std::vector<double> bob;
+	std::ifstream a("best_latest_.txt130__");
+	for (int i = 0; i < g_MyNet.paramsNumber(); ++i) {
+		double b;
+		a >> b;
+		bob.push_back(b);
+	}
+	model.pop[0] = bob;*/
+	model.learn(5000);
+	auto best = model.best_gene();
 
-	//std::ifstream fin("best.txt");
-	//for (int i = 0; i < g_MyNet.paramsNumber(); ++i) 
-	//	fin >> best[i];
+	/*std::ifstream fin("best.txt");
+	for (int i = 0; i < g_MyNet.paramsNumber(); ++i) 
+		fin >> best[i];*/
 	
 	while (true) {
 		int a;
