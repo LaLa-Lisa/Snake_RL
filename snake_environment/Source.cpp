@@ -185,31 +185,7 @@ void training(int times) {
 	while (true) {
 		int a;
 		std::cin >> a;
-		std::cin >> a;
-		std::cin >> a;
 		show({}, 10);
-		//double summ = 0;
-		//for (int i = 0; i < 1000; ++i) {
-		//	double res_0 = 0;
-		//	double res_1 = 0;
-		//	res_0 += (double)show({}, 6) / 36;
-		//	res_0 += (double)show({}, 8) / 64;
-		//	res_0 += (double)show({}, 10) / 100;
-		//	res_0 += (double)show({}, 12) / 144;
-		//	res_0 /= 4;
-		//	res_1 += (double)show({}, 5) / 25;
-		//	res_1 += (double)show({}, 7) / 49;
-		//	res_1 += (double)show({}, 9) / 81;
-		//	res_1 += (double)show({}, 11) / 121;
-		//	res_1 /= 4;
-		//	//for (int j = 5; j < 13; ++j) {
-		//		//res += (double)show({}, j) / (j*j);
-		//	//}
-		//	double res = (res_0 + res_1) / 2;
-		//	//auto res = show({}, 5);
-		//	summ += res;
-		//	std::cout <<'\n' << i + 1 << '\t' << res << '\t' << summ / (i + 1) << " Even " << res_0 << " Odd " << res_1 << '\n';
-		//}
 	}
 }
 

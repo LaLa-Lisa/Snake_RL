@@ -63,6 +63,17 @@ public:
 					max_fitness.push_back(max_f);
 					avg_fitness.end()[-1] = sum / repeat_times;
 				}
+				if (_kbhit()) {
+					switch (_getch())
+					{
+					case 's':
+						show_plt_avarage();
+						show_plt_avarage2();
+						break;
+					default:
+						break;
+					}
+				}
 			#endif
 			
 			current_iteration = t;
