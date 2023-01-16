@@ -106,7 +106,7 @@ public:
 
 	void draw_screen() {
 		if (!is_sfml_draw) throw;
-		int block_size = (int)sreen->getSize().x / wight;
+		int block_size = (int)sreen->getSize().x / heght;
 
 		sf::Event event;
 		while (sreen->pollEvent(event))

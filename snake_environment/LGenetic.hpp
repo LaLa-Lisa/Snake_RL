@@ -10,6 +10,7 @@
 #include <set>
 #include <thread>
 #include <string>
+#include <limits>
 
 #ifdef PYPLT
 #include "matplotlibcpp.h"
@@ -50,7 +51,7 @@ public:
 			#ifdef PYPLT
 				avg_fitness.push_back(abs(fitness_function(b_gene)));
 				if (is_avarage_fitness) {
-					double min_f = 999999; //TODO
+					double min_f = std::numeric_limits<double>::max(); 
 					double max_f = 0;
 					double sum = 0;
 					for (int i = 0; i < repeat_times; ++i) {
@@ -68,7 +69,6 @@ public:
 					{
 					case 's':
 						show_plt_avarage();
-						show_plt_avarage2();
 						break;
 					default:
 						break;
@@ -79,7 +79,10 @@ public:
 			current_iteration = t;
 			sort();
 
-			std::cout << t << " - " << fitness_function(b_gene) << " \t| " << show_time(start_time) << "\n";
+			std::cout << t << " - " << fitness_function(b_gene);
+			if (enable_loss) std::cout << " \t| loss: " << loss(b_gene);
+			std::cout << " \t| " << show_time(start_time);
+			std::cout << "\n";
 			if (t % 10 == 0) {
 				save_best_gene("best_latest_.txt");
 			}
@@ -245,6 +248,7 @@ public:
 
 	void set_loss(std::function<double(std::vector<double>&)> _loss) {
 		loss = [_loss](std::vector<double>& x) { return _loss(x); };
+		enable_loss = true;
 	}
 
 	//запись одного гена из вне
@@ -312,11 +316,11 @@ public:
 			keywords["color"] = "grey";
 			keywords["hatch"] = "-";
 			matplotlibcpp::fill_between(x, max_fitness, min_fitness, keywords);*/
-			matplotlibcpp::plot(x, max_fitness, { {"label", "max fitness"} });
-			matplotlibcpp::plot(x, min_fitness, { {"label", "min fitness"} });
+			matplotlibcpp::scatter(x, max_fitness, { {"label", "max fitness"}, {"color", "green"} });
+			matplotlibcpp::scatter(x, min_fitness, { {"label", "min fitness"}, {"color", "orange"} });
 		}
 		// Plot a line whose name will show up as "log(x)" in the legend.
-		matplotlibcpp::plot(x, avg_fitness, { {"label", "average fitness"} });
+		matplotlibcpp::plot(x, avg_fitness, { {"label", "average fitness"}, {"color", "blue"}});
 		// Add graph title
 		matplotlibcpp::title("Fitness");
 		// Enable legend.
@@ -652,6 +656,7 @@ private:
 
 
 	std::function<double(std::vector<double>&)> loss;
+	bool enable_loss = false;
 
 	#ifdef PYPLT
 	//plotting staff
