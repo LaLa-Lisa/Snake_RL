@@ -284,6 +284,7 @@ public:
 	//активация использования потоков и задание их количества
 	void enable_multiprocessing(const int _threads_number) {
 		if (_threads_number <= 0) throw;
+		if (_threads_number == 1) return;
 		unsigned int avalible_threads = std::thread::hardware_concurrency();
 		if (avalible_threads < _threads_number) {
 			std::cout << "Attempt to use " << _threads_number << " threads, when only " << avalible_threads << " are avalible\n";
