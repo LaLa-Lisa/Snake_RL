@@ -11,6 +11,7 @@
 #include <thread>
 #include <string>
 #include <limits>
+#include <mutex>
 
 #ifdef PYPLT
 #include "matplotlibcpp.h"
@@ -342,6 +343,7 @@ private:
 	//work with threads 
 	bool enable_threads = false;
 	int threads_number = 1;
+	std::mutex mut_dist;
 
 
 	int current_iteration;
@@ -584,15 +586,30 @@ private:
 		}
 	}
 
+
+	void distributed_exe_f(std::vector<double>& F, std::vector<int>& isDone) {
+		for (int i = 0; i < pop.size(); ++i) {
+			mut_dist.lock();
+			if (!isDone[i]) {
+				isDone[i] = 1;
+				mut_dist.unlock();
+				double res = fitness_function(pop[i]);
+				mut_dist.lock();
+				F[i] = res;
+			}
+			mut_dist.unlock();
+		}
+	}
+
 	void sort() {
 		std::vector<double> F;
 		F.reserve(pop.size());
 		if (enable_threads) {
 			F.resize(pop.size());
-			int n = pop.size();
+			std::vector<int> isDone(F.size(), 0);
 			std::vector<std::thread> threads(threads_number);
 			for (int i = 0; i < threads_number; ++i)
-				threads[i] = std::thread(&LGenetic::doPart, this, i * n / threads_number, (i + 1) * n / threads_number, std::ref(F));
+				threads[i] = std::thread(&LGenetic::distributed_exe_f, this, std::ref(F), std::ref(isDone));
 
 			for (auto& th : threads)
 				th.join();
