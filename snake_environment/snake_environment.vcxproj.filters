@@ -23,5 +23,14 @@
     <ClInclude Include="snake_env.hpp">
       <Filter>Resource Files</Filter>
     </ClInclude>
+    <ClInclude Include="act_fun.hpp">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="NeuralN.hpp">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LGenetic.hpp">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
